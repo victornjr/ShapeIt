@@ -4,6 +4,7 @@
 var gl;
 var canvas;
 var scene;
+var level;
 
 var dragMode;
 var dragging;	// Dragging or not
@@ -18,7 +19,7 @@ class Scene {
 
 	init() {
 		// Set the clear Color
-		gl.clearColor(0., 0., 0., 1.);	// black
+		gl.clearColor(0., 0., 0., 0.);	// black
 		gl.enable(gl.CULL_FACE);
 		gl.cullFace(gl.BACK);
 		gl.enable(gl.DEPTH_TEST);
@@ -508,18 +509,46 @@ function loadImage() {
 }
 
 function main() {
+	//level = localStorage.getItem("selectedLevel");
 	canvas = document.getElementById("canvas");
 	gl = canvas.getContext("webgl");	// Get a WebGL Context
 	if(!gl) {
 		return;
 	}
 	scene = new Scene();
-	let c1 = new Cube();
-	c1.setColor(1., 0., 0., 1.);
-	c1.setDrawingMode("solid-per-vertex-color");
-	//c1.setDrawingMode("wireframe");
+	level = 1;
+	let levelModel;
 
-	scene.addModel(c1);
+	switch (level){
+		case 1:
+			levelModel = new Cube();
+			//levelModel.setColor(1., 0., 0., 1.);
+			//levelModel.setDrawingMode("solid-per-vertex-color");
+			//levelModel.setDrawingMode("wireframe");
+			break;
+		case 2:
+			break;
+		case 3:
+			break;
+		case 4:
+			break;
+		case 5:
+			break;
+		case 6:
+			break;
+		case 7:
+			break;
+		case 8:
+			break;
+		case 9:
+			break;
+		case 10:
+			break;
+		default:
+
+	}
+
+	scene.addModel(levelModel);
 
 	let camera1 = new Camera();
 	scene.addCamera(camera1);
@@ -529,6 +558,7 @@ function main() {
 
 	add_random_model();
 	loadImage();
+	levelModel.setDrawingMode("solid-per-vertex-color");
 
 	// cameraHome();
 	setTimeout(cameraHome, 5);

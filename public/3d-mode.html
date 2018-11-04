@@ -93,22 +93,33 @@
 				gl_FragColor = vColor;
 			}
 		</script>
-
+		<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+	  <link href="https://fonts.googleapis.com/css?family=Chakra+Petch" rel="stylesheet">
 	</head>
 
-	<body onload="main();">
-		<img id="canvasImg" alt="Right click to save me!">
-		<canvas id="canvas" width="500" height="500"></canvas>
-		<div>
-			<b><font size=4>Camera</font></b>
+	<body onload="main();" style="background-image: linear-gradient(to right,#7cc2ff  , #ff9ef5);">
+		<div class="row">
+			<div class="col-1"> </div>
+			<div class="col-4">
+				<img id="canvasImg" alt="Right click to save me!">
+			</div>
+			<div class="col-1"> </div>
+
+			<div class="col-1"> </div>
+			<div class="col-4">
+				<canvas id="canvas" width="500" height="500"></canvas>
+			</div>
+			<div class="col-1"> </div>
+		</div>
+		<div class="row">
+
 			<form style="display:none" action="">
 			  Drag to:
 			  <input type="radio" name="camera" value="Rotate" checked> Rotate
 			  <input type="radio" name="camera" value="Pan"> Pan
 			  <input type="radio" name="camera" value="Zoom"> Zoom
 			</form>
-			<br>
-			<button onclick="cameraHome()" id="btn-home">HOME</button>
+			<button class="btn btn-primary btn-lg btn-block" onclick="cameraHome()" id="btn-home">HOME</button>
 			<!-- <button id="btn-above">ABOVE</button>
 			<button id="btn-front">FRONT</button>
 			<button id="btn-back">BACK</button>
@@ -120,7 +131,12 @@
 			<input type="checkbox" id="chb-soccer">Visible
 			 | Size:
 			<input type="range" id="range-slider" min="0" max="100" value="50"> -->
-		</div>
+
+
+		  </div>
+
+		<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js" integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy" crossorigin="anonymous"></script>
+	  <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
 	</body>
 
 </html>
