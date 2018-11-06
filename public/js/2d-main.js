@@ -9,6 +9,9 @@ var yCord = 0;
 var v1r,v1g,v1b,v2r,v2g,v2b,v3r,v3g,v3b,angle;
 var dm;
 var figure_selector, figure_selected, figure_counter=0;
+var databaseRef, nivelesRef;
+var lineas_count = 0;
+var current_level = 1;
 
 //var x1, x2, x3, y1, y2, y3, z1, z2, z3;
 
@@ -369,6 +372,50 @@ class Square extends Model {
 	}
 }
 
+class Line extends Model {
+	constructor(x1, y1, z1, x2, y2, z2) {
+		v1r=document.getElementById("red1").value/100;
+		v1g=document.getElementById("green1").value/100;
+		v1b=document.getElementById("blue1").value/100;
+		v2r=document.getElementById("red2").value/100;
+		v2g=document.getElementById("green2").value/100;
+		v2b=document.getElementById("blue2").value/100;
+		super();
+		if (!arguments.length){
+			this.positions = [0., 0.15, 0.,   // V0
+										   -0.15,  -0.15, 0., // v1
+										    ];
+		}
+		else {
+			this.positions = [x1, y1, z1, // V0
+												x2, y2, z2, // v1
+												];
+		}
+		this.colors = [v1r, v1g, v1b, 1., // V0: r,g,b,a
+									v2r, v2g, v2b, 1., // v1
+		];
+
+		this.setSingleColorShader(); // default shader
+	}
+
+	draw() {
+		// Draw the scene
+		let primitiveType = gl.LINES;
+		if (this.drawingMode == "points") {
+			this.setDrawingMode("points");
+		} else if (this.drawingMode == "wireframe") {
+			primitiveType = gl.LINE_LOOP;
+		} else if(this.drawingMode == "solid-per-vertex-color"){
+			this.setPerVertexColorShader();
+		}
+
+		var offset = 0;
+		var count = 2;
+		//this.rotate(angle);
+		gl.drawArrays(primitiveType, offset, count);
+	}
+}
+
 class Camera {
 	constructor() {
 		this.lookAt(0., 0., 1.75, 0., 0., 0., 0., 1., 0.);
@@ -412,7 +459,8 @@ function mouseDownEventListener(event) {
 	xCord = 2 * (x - rect.left) / canvas.width - 1;
 	yCord = 2 * (rect.top - y) / canvas.height + 1;
 
-	console.log("CLICK %f %f", xCord, yCord);
+	console.log("CLICK "+xCord+", "+yCord);
+	console.log("LINE COORD IF DRAWN "+xCord/2+", "+yCord/2);
 	if (figuraSeleccionada == "triangle") {
 		currentModel = new Triangle(0*s, .1*s, 0.*s, -.1*s, -.1*s, 0.*s, .1*s, -.1*s, 0.*s);
  		if(modoSeleccionado=="solido"){
@@ -488,12 +536,12 @@ function mouseDownEventListener(event) {
 	new_option.text = figure_counter;
 	new_option.value = figure_counter;
 	figure_selector.add(new_option);
-	figure_selected = figure_counter;
+	figure_selected = figure_counter + lineas_count;
 	selector.value = figure_counter;
 }
 
 function update_figure_selected() {
-	figure_selected = selector.value;
+	figure_selected = parseInt(selector.value) + lineas_count;
 }
 
 function rotate_CW() {
@@ -541,54 +589,46 @@ function clear_canvas() {
 	scene.listModels = [];
 	selector.innerHTML = "";
 	figure_counter = 0;
-}
-
-function getRandomInt(min, max) {
-	return Math.floor(Math.random() * (max - min + 1)) + min;
-}
-
-function getRandomFloat(min, max) {
-	return Math.random()*(max - min) + min;
-}
-
-function add_random_model() {
-	var figure = getRandomInt(0, 3);
-	var s = getRandomInt(1, 4);
-	s *= 0.5;
-	var angle = getRandomInt(-40, 40);
-	var currentModel;
-	var xCord = getRandomFloat(-0.8, 0.8);
-	var yCord = getRandomFloat(-0.8, 0.8);
-	if (figure == 0) {
-		currentModel = new Triangle(0*s, .1*s, 0.*s, -.1*s, -.1*s, 0.*s, .1*s, -.1*s, 0.*s);
-	}
-	else if (figure == 1) {
-		currentModel = new Square(-0.1*s,0.1*s,0*s,-0.1*s,-0.1*s,0*s,0.1*s,-0.1*s,0*s,
-															-0.1*s,0.1*s,0*s,0.1*s,0.1*s,0*s,0.1*s,-0.1*s,0*s);
-	}
-	else if (figure == 3) {		// Rectangle
-		currentModel = new Square(-0.15*s,0.1*s,0*s,-0.15*s,-0.1*s,0*s,0.15*s,-0.1*s,0*s,
-															-0.15*s,0.1*s,0*s,0.15*s,0.1*s,0*s,0.15*s,-0.1*s,0*s);
-	}
-	else {		// Trapezoid
-		currentModel = new Square(0*s/3, .05*s/3, 0.*s/3, -.35*s/3, -.15*s/3, 0.*s/3, .15*s/3, -.15*s/3, 0.*s/3,
-															-0.20*s/3,0.05*s/3,0*s/3,-0.35*s/3,-0.15*s/3,0*s/3,0*s/3, .05*s/3, 0.*s/3);
-	}
-	currentModel.drawingMode="solid-single-color";
-	currentModel.translate(xCord, yCord, 0);
-	currentModel.rotate(angle);
-	scene.addModel(currentModel);
-	scene.render();
+	lineas_count = 0;
+	loadLevel(current_level);
 }
 
 function initMouseEventHandlers() {
 	canvas.addEventListener("mousedown", mouseDownEventListener, false);
 }
 
-function loadImage() {
-	var dataURL = canvas.toDataURL('image/jpeg');
-  document.getElementById('canvasImg').src = dataURL;
+function loadLevel(level){
+	nivelesRef.child(level).child("lineas").once('value').then(function(snapshot) {
+		var linea = snapshot.val();
+		for(var key in linea){
+			var x1 = parseFloat(linea[key].x1);
+			var y1 = parseFloat(linea[key].y1);
+			var x2 = parseFloat(linea[key].x2);
+			var y2 = parseFloat(linea[key].y2);
+			// console.log("x1: "+x1); console.log("y1: "+y1);
+			// console.log("x2: "+x2); console.log("y2: "+y2);
+			scene.addModel(new Line(x1, y1, 1, x2, y2, 1));
+			lineas_count++;
+		}
+		scene.render();
+	});
 }
+
+(function(){
+    // Initialize Database
+    const config = {
+				apiKey: "AIzaSyDrk-0sxzRRQiUpyFgbD71OHSKoWU2XS0E",
+		    authDomain: "shape-it-e95cf.firebaseapp.com",
+		    databaseURL: "https://shape-it-e95cf.firebaseio.com",
+		    projectId: "shape-it-e95cf",
+		    storageBucket: "shape-it-e95cf.appspot.com",
+		    messagingSenderId: "621436843578"
+    };
+    firebase.initializeApp(config);
+
+    databaseRef = firebase.database();
+		nivelesRef = databaseRef.ref("niveles2d/");
+}());
 
 function main() {
 	canvas = document.getElementById("canvas");
@@ -602,12 +642,8 @@ function main() {
 	var camera1 = new Camera();
 	scene.addCamera(camera1);
 	initMouseEventHandlers();
-	scene.render();
 
-	add_random_model();
-	add_random_model();
-	add_random_model();
-
-	loadImage();
 	clear_canvas();
+	loadLevel(current_level);
+	scene.render();
 }
