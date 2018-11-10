@@ -22,7 +22,7 @@ class Scene {
 	constructor() {
 		this.listModels = [];
 		// Set the clear Color
-		gl.clearColor(0., 0., 0., 1.); // black
+		gl.clearColor(0., 0., 0., 0.); // black
 	}
 
 	addModel(model) {

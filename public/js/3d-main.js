@@ -5,12 +5,16 @@ var gl;
 var canvas;
 var scene;
 var level;
+var databaseRef, nivelesRef;
+var verticesFire, indicesFire;
 
 var dragMode;
 var dragging;	// Dragging or not
 
 var xLast;		// last position of the mouse
 var yLast;
+
+var winRotX, winRotY, win = false;
 
 class Scene {
 	constructor() {
@@ -377,6 +381,44 @@ class Cube extends Model {
 	}
 }
 
+class Mono extends Model {
+	constructor() {
+		super();
+		//Default
+		this.positions = verticesFire;
+		this.indices = indicesFire;
+
+		//console.log(this.positions);
+		//console.log(this.indices);
+
+		this.setSingleColorShader();	// default shader
+	}
+
+	asignVerticesAndIndices(object){
+		this.positions = object.vertices;
+		this.indices = object.faces;
+		//this.positions = object.meshes[0].vertices;
+		//this.indices = [].concat.apply([], object.meshes[0].faces);
+		//console.log(this.positions);
+		//console.log(this.indices);
+	}
+
+	draw() {
+		// Draw the scene
+		let primitiveType = gl.TRIANGLES;
+		if(this.drawingMode == "points") {
+			primitiveType = gl.POINTS;
+		}
+		else if(this.drawingMode == "wireframe") {
+			primitiveType = gl.LINE_STRIP;
+		}
+		var offset = 0;
+		var count = this.indices.length;
+		//console.log(count);
+		gl.drawElements(primitiveType, count, gl.UNSIGNED_SHORT, offset);
+	}
+}
+
 class Camera {
 	constructor() {
 		this.setPerspective();
@@ -437,6 +479,10 @@ function mouseDownEventListener(event) {
 
 function mouseUpEventListener(event) {
 	dragging = false;	// mouse is released
+	checkWin();
+	if(win == true){
+		console.log("YOU WIN!!!");
+	}
 }
 
 function mouseMoveEventListener(event) {
@@ -474,12 +520,21 @@ function mouseMoveEventListener(event) {
 		scene.update();
 		scene.render();
 	}
+
 }
 
 function cameraHome() {
 	scene.camera.home();
 	scene.update();
 	scene.render();
+}
+
+function getUrlVars() {
+    var vars = {};
+    var parts = window.location.href.replace(/[?&]+([^=&]+)=([^&]*)/gi, function(m,key,value) {
+        vars[key] = value;
+    });
+    return vars;
 }
 
 function initEventHandlers() {
@@ -490,6 +545,67 @@ function initEventHandlers() {
 
 function getRandomInt(min, max) {
 	return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
+function checkWin(){
+
+	var deltaX = Math.abs(winRotX - scene.camera.rotX);
+	var deltaY = Math.abs(winRotY - scene.camera.rotY);
+
+	if(deltaX < 0.5 && deltaY < 0.5){
+		win = true;
+		console.log("Esta cerca de Y, deltaY: " + deltaY);
+		console.log("Esta cerca de X, deltaX: " + deltaX);
+	}
+}
+
+function loadLevel(levelI){
+	nivelesRef.child(levelI).once('value').then(function(snapshot) {
+		var linea = snapshot.val();
+		indicesFire = linea.faces;
+		verticesFire = linea.vertices;
+		//console.log(verticesFire);
+		//console.log(indicesFire);
+	});
+
+}
+
+(function(){
+    // Initialize Database
+    const config = {
+				apiKey: "AIzaSyDrk-0sxzRRQiUpyFgbD71OHSKoWU2XS0E",
+		    authDomain: "shape-it-e95cf.firebaseapp.com",
+		    databaseURL: "https://shape-it-e95cf.firebaseio.com",
+		    projectId: "shape-it-e95cf",
+		    storageBucket: "shape-it-e95cf.appspot.com",
+		    messagingSenderId: "621436843578"
+    };
+    firebase.initializeApp(config);
+
+    databaseRef = firebase.database();
+		nivelesRef = databaseRef.ref("niveles3d/");
+}());
+
+function readJSON(){
+	var request = new XMLHttpRequest();
+	//request.open("GET","mono.json");
+	request.onreadystatechange = function () {
+	    if (this.readyState == 4) {
+				//console.log(request.responseText);
+	       var object = JSON.parse(this.responseText);
+				 //actualModel.asignVerticesAndIndices(object);
+				 indicesFire = object.faces;
+		 		 verticesFire = object.vertices;
+
+				 //console.log(indicesFire);
+
+	    }
+	}
+	var chargeString = "../public/json/";
+	var levelJSON = level.concat(".json");
+	request.open("GET",chargeString.concat(levelJSON) , true);
+	//console.log(elemento.vertices);
+	request.send();
 }
 
 function add_random_model() {
@@ -504,11 +620,14 @@ function add_random_model() {
 }
 
 function loadImage() {
-	var dataURL = canvas.toDataURL('image/jpeg');
+	var dataURL = canvas.toDataURL('image/png');
   document.getElementById('canvasImg').src = dataURL;
 }
 
 function main() {
+	level = getUrlVars()["level"];
+	//loadLevel(chargeString.concat(level));
+	readJSON();
 	//level = localStorage.getItem("selectedLevel");
 	canvas = document.getElementById("canvas");
 	gl = canvas.getContext("webgl");	// Get a WebGL Context
@@ -516,50 +635,91 @@ function main() {
 		return;
 	}
 	scene = new Scene();
-	level = 1;
+	//level = 1;
 	let levelModel;
 
 	switch (level){
-		case 1:
+		case "1":
 			levelModel = new Cube();
 			//levelModel.setColor(1., 0., 0., 1.);
 			//levelModel.setDrawingMode("solid-per-vertex-color");
 			//levelModel.setDrawingMode("wireframe");
 			break;
-		case 2:
+		case "2":
+			setTimeout(function(){
+				levelModel = new Mono();
+				//console.log("Hola final");
+			}, 800);
+
+			//readJSON(levelModel);
+			//levelModel.setColor(1., 0., 0., 1.);
 			break;
-		case 3:
+		case "3":
 			break;
-		case 4:
+		case "4":
+			setTimeout(function(){
+				levelModel = new Mono();
+			}, 800);
 			break;
-		case 5:
+		case "5":
+			setTimeout(function(){
+				levelModel = new Mono();
+				levelModel.translate(0.,0.,-5.);
+			}, 800);
 			break;
-		case 6:
+		case "6":
+			setTimeout(function(){
+				levelModel = new Mono();
+			}, 800);
 			break;
-		case 7:
+		case "7":
+			setTimeout(function(){
+				levelModel = new Mono();
+			}, 800);
 			break;
-		case 8:
+		case "8":
+			setTimeout(function(){
+				levelModel = new Mono();
+			}, 800);
 			break;
-		case 9:
+		case "9":
+			setTimeout(function(){
+				levelModel = new Mono();
+			}, 800);
 			break;
-		case 10:
+		case "10":
+			setTimeout(function(){
+				levelModel = new Mono();
+			}, 800);
 			break;
 		default:
-
+			console.log("Hola");
 	}
+	setTimeout(function(){
+		scene.addModel(levelModel);
+		let camera1 = new Camera();
+		scene.addCamera(camera1);
 
-	scene.addModel(levelModel);
+		scene.init();
+		initEventHandlers();
 
-	let camera1 = new Camera();
-	scene.addCamera(camera1);
+		add_random_model();
+		winRotX = camera1.rotX;
+		winRotY = camera1.rotY;
+		console.log("modelo imagen X: " + camera1.rotX);
+		console.log("modelo imagen Y: " + camera1.rotY);
+		loadImage();
+		levelModel.setColor(1., 0., 0., 1.);
+		setTimeout(function(){
+			cameraHome();
+			//add_random_model();
+		}, 5);
+	}, 1000);
 
-	scene.init();
-	initEventHandlers();
 
-	add_random_model();
-	loadImage();
-	levelModel.setDrawingMode("solid-per-vertex-color");
+
+	//levelModel.setDrawingMode("solid-per-vertex-color");
 
 	// cameraHome();
-	setTimeout(cameraHome, 5);
+
 }
