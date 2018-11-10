@@ -10,6 +10,9 @@ var v1r,v1g,v1b,v2r,v2g,v2b,v3r,v3g,v3b,angle;
 var dm;
 var figure_selector, figure_selected, figure_counter=0;
 var databaseRef, nivelesRef;
+var translate_units = 0.01
+var scale_units = 0.05
+var rotate_units = 5.0;
 var lineas_count = 0;
 var current_level = 1;
 
@@ -175,6 +178,10 @@ class Model {
 		this.color = [v1r, v1g, v1b, 1.];
 		this.pointSize = 3.;
 		this.drawingMode = "solid-single-color";
+		this.size = 1.0;
+		this.centroid_x = 0.0;
+		this.centroid_y = 0.0;
+		this.rotation = 0.0;
 	}
 
 	setDrawingMode(mode = "solid-single-color") {
@@ -191,13 +198,30 @@ class Model {
 	}
 
 	translate(tx, ty, tz) {
-		mat4.translate(this.modelMatrix, this.modelMatrix, [tx, ty, tz]);
+		var resultMatrix = [0, 0, 0, 0];
+		mat4.multiply(resultMatrix, [1, 0, 0, 0,
+																0, 1, 0, 0,
+																0, 0, 1, 0,
+																tx, ty, tz, 1], [this.modelMatrix[12],
+																								this.modelMatrix[13],
+																								0,
+																								1]);
+		this.modelMatrix[12] = resultMatrix[0]
+		this.modelMatrix[13] = resultMatrix[1]
+		this.centroid_x += tx;
+		this.centroid_y += ty;
+		console.log("centroid: "+this.centroid_x+","+this.centroid_y);
 	}
 	scale(tx, ty, tz) {
 		mat4.scale(this.modelMatrix, this.modelMatrix, [tx, ty, tz]);
+		this.size += tx;
+		console.log("size: "+this.size);
 	}
 	rotate(angle) {
 		mat4.rotate(this.modelMatrix,this.modelMatrix, angle*Math.PI/180.,[0.,0.,1.]);
+		this.rotation = (this.rotation+angle) % 360;
+		if(this.rotation < 0) this.rotation = 360 + this.rotation;
+		console.log("rotation: "+this.rotation);
 	}
 	setColor(r = 1., g = 1., b = 1., a = 1.) {
 		this.color = [r, g, b, a];
@@ -545,42 +569,42 @@ function update_figure_selected() {
 }
 
 function rotate_CW() {
-	scene.listModels[figure_selected-1].rotate(-5.);
+	scene.listModels[figure_selected-1].rotate(-1*rotate_units);
 	scene.render();
 }
 
 function rotate_CCW() {
-	scene.listModels[figure_selected-1].rotate(5.);
+	scene.listModels[figure_selected-1].rotate(rotate_units);
 	scene.render();
 }
 
 function scale_up() {
-	scene.listModels[figure_selected-1].scale(1.2, 1.2, 1.);
+	scene.listModels[figure_selected-1].scale(1.0+scale_units, 1.0+scale_units, 1.);
 	scene.render();
 }
 
 function scale_down() {
-	scene.listModels[figure_selected-1].scale(0.8, 0.8, 1.);
+	scene.listModels[figure_selected-1].scale(1.0-scale_units, 1.0-scale_units, 1.);
 	scene.render();
 }
 
 function translate_up() {
-	scene.listModels[figure_selected-1].translate(0., 0.02, 0.);
+	scene.listModels[figure_selected-1].translate(0., translate_units, 0.);
 	scene.render();
 }
 
 function translate_down() {
-	scene.listModels[figure_selected-1].translate(0., -0.02, 0.);
+	scene.listModels[figure_selected-1].translate(0., translate_units*-1, 0.);
 	scene.render();
 }
 
 function translate_right() {
-	scene.listModels[figure_selected-1].translate(0.02, 0., 0.);
+	scene.listModels[figure_selected-1].translate(translate_units, 0., 0.);
 	scene.render();
 }
 
 function translate_left() {
-	scene.listModels[figure_selected-1].translate(-0.02, 0., 0.);
+	scene.listModels[figure_selected-1].translate(translate_units*-1, 0., 0.);
 	scene.render();
 }
 
@@ -598,16 +622,30 @@ function initMouseEventHandlers() {
 }
 
 function loadLevel(level){
+	var x1 = -1
+	var y1 = -1
+	var first_x = -1
+	var first_y = -1
 	nivelesRef.child(level).child("lineas").once('value').then(function(snapshot) {
 		var linea = snapshot.val();
 		for(var key in linea){
-			var x1 = parseFloat(linea[key].x1);
-			var y1 = parseFloat(linea[key].y1);
-			var x2 = parseFloat(linea[key].x2);
-			var y2 = parseFloat(linea[key].y2);
-			// console.log("x1: "+x1); console.log("y1: "+y1);
-			// console.log("x2: "+x2); console.log("y2: "+y2);
-			scene.addModel(new Line(x1, y1, 1, x2, y2, 1));
+			var x2 = parseFloat(linea[key].x);
+			var y2 = parseFloat(linea[key].y);
+			if(x1 == -1 && x1 == -1){
+				var first_x = x2
+				var first_y = y2
+			} else {
+				scene.addModel(new Line(x1, y1, 1, x2, y2, 1));
+				lineas_count++;
+				// console.log("x1: "+x1); console.log("y1: "+y1);
+				// console.log("x2: "+x2); console.log("y2: "+y2);
+				// console.log("----");
+			}
+			x1 = x2
+			y1 = y2
+		}
+		if(x1 != -1 && x1 != -1){
+			scene.addModel(new Line(x1, y1, 1, first_x, first_y, 1));
 			lineas_count++;
 		}
 		scene.render();
