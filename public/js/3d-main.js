@@ -14,6 +14,8 @@ var dragging;	// Dragging or not
 var xLast;		// last position of the mouse
 var yLast;
 
+var winRotX, winRotY, win = false;
+
 class Scene {
 	constructor() {
 		this.listModels = [];
@@ -477,6 +479,10 @@ function mouseDownEventListener(event) {
 
 function mouseUpEventListener(event) {
 	dragging = false;	// mouse is released
+	checkWin();
+	if(win == true){
+		console.log("YOU WIN!!!");
+	}
 }
 
 function mouseMoveEventListener(event) {
@@ -514,6 +520,7 @@ function mouseMoveEventListener(event) {
 		scene.update();
 		scene.render();
 	}
+
 }
 
 function cameraHome() {
@@ -538,6 +545,18 @@ function initEventHandlers() {
 
 function getRandomInt(min, max) {
 	return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
+function checkWin(){
+
+	var deltaX = Math.abs(winRotX - scene.camera.rotX);
+	var deltaY = Math.abs(winRotY - scene.camera.rotY);
+
+	if(deltaX < 0.5 && deltaY < 0.5){
+		win = true;
+		console.log("Esta cerca de Y, deltaY: " + deltaY);
+		console.log("Esta cerca de X, deltaX: " + deltaX);
+	}
 }
 
 function loadLevel(levelI){
@@ -578,7 +597,7 @@ function readJSON(){
 				 indicesFire = object.faces;
 		 		 verticesFire = object.vertices;
 
-				 console.log(indicesFire);
+				 //console.log(indicesFire);
 
 	    }
 	}
@@ -607,7 +626,6 @@ function loadImage() {
 
 function main() {
 	level = getUrlVars()["level"];
-
 	//loadLevel(chargeString.concat(level));
 	readJSON();
 	//level = localStorage.getItem("selectedLevel");
@@ -641,44 +659,37 @@ function main() {
 		case "4":
 			setTimeout(function(){
 				levelModel = new Mono();
-				//console.log("Hola final");
 			}, 800);
 			break;
 		case "5":
 			setTimeout(function(){
 				levelModel = new Mono();
 				levelModel.translate(0.,0.,-5.);
-				//console.log("Hola final");
 			}, 800);
 			break;
 		case "6":
 			setTimeout(function(){
 				levelModel = new Mono();
-				//console.log("Hola final");
 			}, 800);
 			break;
 		case "7":
 			setTimeout(function(){
 				levelModel = new Mono();
-				//console.log("Hola final");
 			}, 800);
 			break;
 		case "8":
 			setTimeout(function(){
 				levelModel = new Mono();
-				//console.log("Hola final");
 			}, 800);
 			break;
 		case "9":
 			setTimeout(function(){
 				levelModel = new Mono();
-				//console.log("Hola final");
 			}, 800);
 			break;
 		case "10":
 			setTimeout(function(){
 				levelModel = new Mono();
-				//console.log("Hola final");
 			}, 800);
 			break;
 		default:
@@ -693,9 +704,16 @@ function main() {
 		initEventHandlers();
 
 		add_random_model();
+		winRotX = camera1.rotX;
+		winRotY = camera1.rotY;
+		console.log("modelo imagen X: " + camera1.rotX);
+		console.log("modelo imagen Y: " + camera1.rotY);
 		loadImage();
 		levelModel.setColor(1., 0., 0., 1.);
-		setTimeout(cameraHome, 5);
+		setTimeout(function(){
+			cameraHome();
+			//add_random_model();
+		}, 5);
 	}, 1000);
 
 
