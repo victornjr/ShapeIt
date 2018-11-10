@@ -601,7 +601,7 @@ function readJSON(){
 
 	    }
 	}
-	var chargeString = "../public/json/";
+	var chargeString = "../json/";
 	var levelJSON = level.concat(".json");
 	request.open("GET",chargeString.concat(levelJSON) , true);
 	//console.log(elemento.vertices);
