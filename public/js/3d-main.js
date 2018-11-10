@@ -567,6 +567,28 @@ function loadLevel(levelI){
 		nivelesRef = databaseRef.ref("niveles3d/");
 }());
 
+function readJSON(){
+	var request = new XMLHttpRequest();
+	//request.open("GET","mono.json");
+	request.onreadystatechange = function () {
+	    if (this.readyState == 4) {
+				//console.log(request.responseText);
+	       var object = JSON.parse(this.responseText);
+				 //actualModel.asignVerticesAndIndices(object);
+				 indicesFire = object.faces;
+		 		 verticesFire = object.vertices;
+
+				 console.log(indicesFire);
+
+	    }
+	}
+	var chargeString = "../public/json/";
+	var levelJSON = level.concat(".json");
+	request.open("GET",chargeString.concat(levelJSON) , true);
+	//console.log(elemento.vertices);
+	request.send();
+}
+
 function add_random_model() {
 	var factor = 10. / canvas.height; // The rotation ratio
 	var dx = factor * getRandomInt(-180, 180);
@@ -585,8 +607,9 @@ function loadImage() {
 
 function main() {
 	level = getUrlVars()["level"];
-	var chargeString = "level";
-	loadLevel(chargeString.concat(level));
+
+	//loadLevel(chargeString.concat(level));
+	readJSON();
 	//level = localStorage.getItem("selectedLevel");
 	canvas = document.getElementById("canvas");
 	gl = canvas.getContext("webgl");	// Get a WebGL Context
@@ -622,16 +645,41 @@ function main() {
 			}, 800);
 			break;
 		case "5":
+			setTimeout(function(){
+				levelModel = new Mono();
+				levelModel.translate(0.,0.,-5.);
+				//console.log("Hola final");
+			}, 800);
 			break;
 		case "6":
+			setTimeout(function(){
+				levelModel = new Mono();
+				//console.log("Hola final");
+			}, 800);
 			break;
 		case "7":
+			setTimeout(function(){
+				levelModel = new Mono();
+				//console.log("Hola final");
+			}, 800);
 			break;
 		case "8":
+			setTimeout(function(){
+				levelModel = new Mono();
+				//console.log("Hola final");
+			}, 800);
 			break;
 		case "9":
+			setTimeout(function(){
+				levelModel = new Mono();
+				//console.log("Hola final");
+			}, 800);
 			break;
 		case "10":
+			setTimeout(function(){
+				levelModel = new Mono();
+				//console.log("Hola final");
+			}, 800);
 			break;
 		default:
 			console.log("Hola");
