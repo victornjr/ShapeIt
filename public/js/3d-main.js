@@ -726,3 +726,20 @@ function main() {
 	// cameraHome();
 
 }
+
+function starsGot(stars)
+{
+
+if(stars==1){
+	document.getElementById('nStars').innerHTML = "☆";
+}
+if(stars==2){
+	document.getElementById('nStars').innerHTML = "☆☆";
+}
+if(stars==3){
+	document.getElementById('nStars').innerHTML = "☆☆☆";
+}
+
+
+
+}
