@@ -11,6 +11,7 @@
 		<script src="js/lib/create-shaders-lib.js" type="text/javascript"></script>
 		<script src="js/lib/gl-matrix-min.js" type="text/javascript"></script>
 		<script src="js/3d-main.js" type="text/javascript"></script>
+		<script src="js/Stopwatch.js" type="text/javascript"></script>
 		<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.5.0/css/all.css" integrity="sha384-B4dIYHKNBt8Bc12p+WXckhzcICo0wtJAoU8YZTY5qE0Id1GSseTk6S+L3BlXeVIU" crossorigin="anonymous">
 	    <link rel="stylesheet" href="vendor/simple-line-icons/css/simple-line-icons.css">
 	    <link href="https://fonts.googleapis.com/css?family=Lato" rel="stylesheet">
@@ -111,7 +112,10 @@
 	<body onload="main();"  id="page-top" >
   <header class="masthead">
 		<div class="row">
-				<div class="col-1"> </div>
+				<div class="col-1">
+					<label class="time"></label>
+
+				</div>
 			<div class="col-4">
 
 				<img id="canvasImg" alt="Right click to save me!">
@@ -132,36 +136,35 @@
 			  <input type="radio" name="camera" value="Pan"> Pan
 			  <input type="radio" name="camera" value="Zoom"> Zoom
 			</form>
-			<br>
-			<button class="btn btn-primary btn-lg btn-block" onclick="cameraHome()" id="btn-home">HOME</button>
 			<br><br>
 			<center>
-				
-			<button onclick="starsGot(1)" type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModalCenter">
+
+			<button onclick="starsGot(1)" type="button" class="btn btn-primary" data-toggle="modal" data-target="#scoreModal">
 
   Score
 </button>
 	</center>
 
 <!-- Modal -->
-<div class="modal fade" id="exampleModalCenter" >
+<div class="modal fade modal-score" data-keyboard="false" data-backdrop="static" id="scoreModal" >
   <div class="modal-dialog modal-dialog-centered" role="document">
     <div class="modal-content">
-      <div class="modal-header">
+      <div class="text-center">
 
-
-        <h5 class="modalText" >YOU GOT IT!</h5>
+				<br>
+        <h5 class="modalText" >LEVEL COMPLETED!</h5>
 
 
         </button>
       </div>
       <div class="modal-body">
 				<center>
-			<h4 id="nStars" class="modalText"></h4>
+			<h4 id="finalTime" class="time modalText"></h4>
+			<h4 id="nStars" class="stars"></h4>
 		</center>
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-primary " data-dismiss="modal">Menu</button>
+        <button type="button" class="btn btn-primary mr-auto" data-dismiss="modal">Menu</button>
         <button type="button" class="btn btn-success">Next Level</button>
       </div>
     </div>

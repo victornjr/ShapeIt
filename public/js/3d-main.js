@@ -13,9 +13,13 @@ var dragging;	// Dragging or not
 
 var xLast;		// last position of the mouse
 var yLast;
+var stopwatch;
 
 var winRotX, winRotY;
 var win = false;
+
+var username;
+var databaseRef, sessionsRef;
 
 class Scene {
 	constructor() {
@@ -451,6 +455,17 @@ class Camera {
 
 	update() {
 		this.lookAt(this.eye, this.center, this.up);
+		var signX = 1;
+		var signY = 1;
+		if(this.rotX < 0.){
+			signX = -signX;
+		}
+		if(this.rotY < 0.){
+			signY = -signY;
+		}
+
+		this.rotX = signX*(this.rotX % 6);
+		this.rotX = signY*(this.rotY % 6);
 		this.rotate(this.rotX, [1., 0., 0.]);
 		this.rotate(this.rotY, [0., 1., 0.]);
 	}
@@ -480,9 +495,18 @@ function mouseDownEventListener(event) {
 
 function mouseUpEventListener(event) {
 	dragging = false;	// mouse is released
-
+	username = "victor";
 	if(checkWin() == true){
-		console.log("YOU WIN!!!");
+		stopwatch.pause();
+		console.log("YOU WIN!!! Hello");
+		$("#scoreModal").modal('show');
+		document.getElementById('finalTime').innerHTML = stopwatch;
+		starsGot(3);
+		//Save the score on firebase
+		var sc = 3;
+		var writeScore = {};
+		writeScore[level] = {"score": sc };
+		sessionsRef.child(username).child("3d").update(writeScore);
 	}
 }
 
@@ -550,8 +574,12 @@ function getRandomInt(min, max) {
 
 function checkWin(){
 
+	console.log("Original X: " + winRotX);
+	console.log("Original Y: " + winRotY);
 	var deltaX = Math.abs(winRotX - scene.camera.rotX);
 	var deltaY = Math.abs(winRotY - scene.camera.rotY);
+	console.log("Move Y: " + deltaY);
+	console.log("Move X: " + deltaX);
 
 	if(deltaX < 0.5 && deltaY < 0.5){
 		//win = true;
@@ -576,17 +604,17 @@ function loadLevel(levelI){
 (function(){
     // Initialize Database
     const config = {
-				apiKey: "AIzaSyDrk-0sxzRRQiUpyFgbD71OHSKoWU2XS0E",
-		    authDomain: "shape-it-e95cf.firebaseapp.com",
-		    databaseURL: "https://shape-it-e95cf.firebaseio.com",
-		    projectId: "shape-it-e95cf",
-		    storageBucket: "shape-it-e95cf.appspot.com",
-		    messagingSenderId: "621436843578"
+  		apiKey: "AIzaSyDrk-0sxzRRQiUpyFgbD71OHSKoWU2XS0E",
+      authDomain: "shape-it-e95cf.firebaseapp.com",
+      databaseURL: "https://shape-it-e95cf.firebaseio.com",
+      projectId: "shape-it-e95cf",
+      storageBucket: "shape-it-e95cf.appspot.com",
+      messagingSenderId: "621436843578"
     };
     firebase.initializeApp(config);
 
     databaseRef = firebase.database();
-		nivelesRef = databaseRef.ref("niveles3d/");
+		sessionsRef = databaseRef.ref("sessions/");
 }());
 
 function readJSON(){
@@ -604,7 +632,7 @@ function readJSON(){
 
 	    }
 	}
-	var chargeString = "../json/";
+	var chargeString = "../public/json/";
 	var levelJSON = level.concat(".json");
 	request.open("GET",chargeString.concat(levelJSON) , true);
 	//console.log(elemento.vertices);
@@ -627,9 +655,19 @@ function loadImage() {
   document.getElementById('canvasImg').src = dataURL;
 }
 
+function createStopWatch(){
+	stopwatch = new Stopwatch();
+
+	var time = document.querySelector('.time');
+	setInterval(function() {
+		time.innerHTML = stopwatch;
+	}, 5);
+
+	stopwatch.start();
+}
+
 function main() {
 	level = getUrlVars()["level"];
-	//loadLevel(chargeString.concat(level));
 	readJSON();
 	//level = localStorage.getItem("selectedLevel");
 	canvas = document.getElementById("canvas");
@@ -716,9 +754,10 @@ function main() {
 		setTimeout(function(){
 			cameraHome();
 			//add_random_model();
+			createStopWatch();
 		}, 5);
-	}, 1000);
 
+	}, 1000);
 
 
 	//levelModel.setDrawingMode("solid-per-vertex-color");
