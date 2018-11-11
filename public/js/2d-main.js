@@ -9,8 +9,17 @@ var yCord = 0;
 var v1r,v1g,v1b,v2r,v2g,v2b,v3r,v3g,v3b,angle;
 var dm;
 var figure_selector, figure_selected, figure_counter=0;
+var databaseRef, nivelesRef;
 
-//var x1, x2, x3, y1, y2, y3, z1, z2, z3;
+var translate_units = 0.01;
+var scale_units = 0.05;
+var rotate_units = 5.0;
+var translate_margin = 0.02;
+var scale_margin = 0.4;
+
+var lineas_count = 0;
+var current_level = 4;
+var session_ID = "?";
 
 class Scene {
 	constructor() {
@@ -161,7 +170,7 @@ class Buffer {
 }
 
 class Model {
-	constructor() {
+	constructor(tipo) {
 		v1r=document.getElementById("red1").value/100;
 		v1g=document.getElementById("green1").value/100;
 		v1b=document.getElementById("blue1").value/100;
@@ -172,6 +181,11 @@ class Model {
 		this.color = [v1r, v1g, v1b, 1.];
 		this.pointSize = 3.;
 		this.drawingMode = "solid-single-color";
+		this.tipo = tipo;
+		this.size = 1.0;
+		this.centroid_x = 0.0;
+		this.centroid_y = 0.0;
+		this.rotation = 0.0;
 	}
 
 	setDrawingMode(mode = "solid-single-color") {
@@ -188,13 +202,30 @@ class Model {
 	}
 
 	translate(tx, ty, tz) {
-		mat4.translate(this.modelMatrix, this.modelMatrix, [tx, ty, tz]);
+		var resultMatrix = [0, 0, 0, 0];
+		mat4.multiply(resultMatrix, [1, 0, 0, 0,
+																0, 1, 0, 0,
+																0, 0, 1, 0,
+																tx, ty, tz, 1], [this.modelMatrix[12],
+																								this.modelMatrix[13],
+																								0,
+																								1]);
+		this.modelMatrix[12] = resultMatrix[0]
+		this.modelMatrix[13] = resultMatrix[1]
+		this.centroid_x += tx;
+		this.centroid_y += ty;
+		console.log("centroid: "+this.centroid_x+","+this.centroid_y);
 	}
 	scale(tx, ty, tz) {
 		mat4.scale(this.modelMatrix, this.modelMatrix, [tx, ty, tz]);
+		this.size *= tx;
+		console.log("size: "+this.size);
 	}
 	rotate(angle) {
 		mat4.rotate(this.modelMatrix,this.modelMatrix, angle*Math.PI/180.,[0.,0.,1.]);
+		this.rotation = (this.rotation+angle) % 360;
+		if(this.rotation < 0) this.rotation = 360 + this.rotation;
+		console.log("rotation: "+this.rotation);
 	}
 	setColor(r = 1., g = 1., b = 1., a = 1.) {
 		this.color = [r, g, b, a];
@@ -261,7 +292,7 @@ class Triangle extends Model {
 		v3r=document.getElementById("red3").value/100;
 		v3g=document.getElementById("green3").value/100;
 		v3b=document.getElementById("blue3").value/100;
-		super();
+		super("triangulo");
 		if (!arguments.length){
 			this.positions = [0., 0.15, 0.,   // V0
 										   -0.15,  -0.15, 0., // v1
@@ -306,7 +337,7 @@ class Triangle extends Model {
 
 class Square extends Model {
 	constructor(x1, y1, z1, x2, y2, z2, x3, y3, z3,
-							x4, y4, z4, x5, y5, z5, x6, y6, z6) {
+							x4, y4, z4, x5, y5, z5, x6, y6, z6, tipo) {
 		var menuModo=document.getElementById("menuModo");
 		var modoSeleccionado=menuModo.options[menuModo.selectedIndex].value;
 		v1r=document.getElementById("red1").value/100;
@@ -318,7 +349,7 @@ class Square extends Model {
 		v3r=document.getElementById("red3").value/100;
 		v3g=document.getElementById("green3").value/100;
 		v3b=document.getElementById("blue3").value/100;
-		super();
+		super(tipo);
 		if (!arguments.length){
 			this.positions = [0., 0.15, 0.,   	// V0
 										   -0.15,  -0.15, 0., // V1
@@ -369,6 +400,50 @@ class Square extends Model {
 	}
 }
 
+class Line extends Model {
+	constructor(x1, y1, z1, x2, y2, z2) {
+		v1r=document.getElementById("red1").value/100;
+		v1g=document.getElementById("green1").value/100;
+		v1b=document.getElementById("blue1").value/100;
+		v2r=document.getElementById("red2").value/100;
+		v2g=document.getElementById("green2").value/100;
+		v2b=document.getElementById("blue2").value/100;
+		super("linea");
+		if (!arguments.length){
+			this.positions = [0., 0.15, 0.,   // V0
+										   -0.15,  -0.15, 0., // v1
+										    ];
+		}
+		else {
+			this.positions = [x1, y1, z1, // V0
+												x2, y2, z2, // v1
+												];
+		}
+		this.colors = [v1r, v1g, v1b, 1., // V0: r,g,b,a
+									v2r, v2g, v2b, 1., // v1
+		];
+
+		this.setSingleColorShader(); // default shader
+	}
+
+	draw() {
+		// Draw the scene
+		let primitiveType = gl.LINES;
+		if (this.drawingMode == "points") {
+			this.setDrawingMode("points");
+		} else if (this.drawingMode == "wireframe") {
+			primitiveType = gl.LINE_LOOP;
+		} else if(this.drawingMode == "solid-per-vertex-color"){
+			this.setPerVertexColorShader();
+		}
+
+		var offset = 0;
+		var count = 2;
+		//this.rotate(angle);
+		gl.drawArrays(primitiveType, offset, count);
+	}
+}
+
 class Camera {
 	constructor() {
 		this.lookAt(0., 0., 1.75, 0., 0., 0., 0., 1., 0.);
@@ -402,8 +477,9 @@ function mouseDownEventListener(event) {
 	var menuModo=document.getElementById("menuModo");
 	var modoSeleccionado=menuModo.options[menuModo.selectedIndex].value;
 	var currentModel;
-	var menuSize=document.getElementById("menuSize");
-	var s=menuSize.options[menuSize.selectedIndex].value;
+	// var menuSize=document.getElementById("menuSize");
+	// var s=menuSize.options[menuSize.selectedIndex].value;
+	var s = 0.5;
 
 	var x = event.clientX;
 	var y = event.clientY;
@@ -412,7 +488,8 @@ function mouseDownEventListener(event) {
 	xCord = 2 * (x - rect.left) / canvas.width - 1;
 	yCord = 2 * (rect.top - y) / canvas.height + 1;
 
-	console.log("CLICK %f %f", xCord, yCord);
+	console.log("CLICK "+xCord+", "+yCord);
+	console.log("LINE COORD IF DRAWN "+xCord/2+", "+yCord/2);
 	if (figuraSeleccionada == "triangle") {
 		currentModel = new Triangle(0*s, .1*s, 0.*s, -.1*s, -.1*s, 0.*s, .1*s, -.1*s, 0.*s);
  		if(modoSeleccionado=="solido"){
@@ -431,7 +508,7 @@ function mouseDownEventListener(event) {
 	}
 	else if (figuraSeleccionada == "square") {
 		currentModel = new Square(-0.1*s,0.1*s,0*s,-0.1*s,-0.1*s,0*s,0.1*s,-0.1*s,0*s,
-															-0.1*s,0.1*s,0*s,0.1*s,0.1*s,0*s,0.1*s,-0.1*s,0*s);
+															-0.1*s,0.1*s,0*s,0.1*s,0.1*s,0*s,0.1*s,-0.1*s,0*s,"cuadrado");
  		if(modoSeleccionado=="solido"){
 			currentModel.drawingMode="solid-single-color";
 		}
@@ -447,8 +524,8 @@ function mouseDownEventListener(event) {
 		currentModel.translate(xCord, yCord, 0);
 	}
 	else if (figuraSeleccionada == "rectangle") {
-		currentModel = new Square(-0.15*s,0.1*s,0*s,-0.15*s,-0.1*s,0*s,0.15*s,-0.1*s,0*s,
-															-0.15*s,0.1*s,0*s,0.15*s,0.1*s,0*s,0.15*s,-0.1*s,0*s);
+		currentModel = new Square(-0.85*s,0.1*s,0*s,-0.85*s,-0.1*s,0*s,0.85*s,-0.1*s,0*s,
+															-0.85*s,0.1*s,0*s,0.85*s,0.1*s,0*s,0.85*s,-0.1*s,0*s,"rectangulo");
  		if(modoSeleccionado=="solido"){
 			currentModel.drawingMode="solid-single-color";
 		}
@@ -465,7 +542,7 @@ function mouseDownEventListener(event) {
 	}
 	else {		// Trapezoid
 		currentModel = new Square(0*s/3, .05*s/3, 0.*s/3, -.35*s/3, -.15*s/3, 0.*s/3, .15*s/3, -.15*s/3, 0.*s/3,
-															-0.20*s/3,0.05*s/3,0*s/3,-0.35*s/3,-0.15*s/3,0*s/3,0*s/3, .05*s/3, 0.*s/3);
+															-0.20*s/3,0.05*s/3,0*s/3,-0.35*s/3,-0.15*s/3,0*s/3,0*s/3, .05*s/3, 0.*s/3,"trapezoide");
  		if(modoSeleccionado=="solido"){
 			currentModel.drawingMode="solid-single-color";
 		}
@@ -488,52 +565,109 @@ function mouseDownEventListener(event) {
 	new_option.text = figure_counter;
 	new_option.value = figure_counter;
 	figure_selector.add(new_option);
-	figure_selected = figure_counter;
+	figure_selected = figure_counter + lineas_count;
 	selector.value = figure_counter;
 }
 
+function checkSolution() {
+	nivelesRef.child(current_level).child("figuras_solucion").once('value').then(function(snapshot) {
+		var figura = snapshot.val();
+		var expected_correct = figura.length-1;
+		var total_correct = 0;
+		for(var key in figura){
+			var expected_tipo = figura[key].tipo;
+			var expected_size = parseFloat(figura[key].size);
+			var expected_x = parseFloat(figura[key].x);
+			var expected_y = parseFloat(figura[key].y);
+			var expected_rotation = parseFloat(figura[key].rotation);
+			for(var drawn=lineas_count; drawn<scene.listModels.length; drawn++){
+				var model_drawn = scene.listModels[drawn];
+				var actual_tipo = model_drawn.tipo;
+				var actual_size = model_drawn.size;
+				var actual_x = model_drawn.centroid_x;
+				var actual_y = model_drawn.centroid_y;
+				var actual_rotation = model_drawn.rotation;
+				// console.log("looking at tipo:"+actual_tipo+"  expected:"+expected_tipo);
+				// console.log("looking at size:"+  actual_size  +"  expected:"+expected_size);
+				// console.log("looking at X:"+  actual_x  +"  expected:"+expected_x);
+				// console.log("looking at Y:"+  actual_y  +"  expected:"+expected_y);
+				// console.log("looking at rotation:"+  actual_rotation  +"  expected:"+expected_rotation);
+				if((expected_tipo == actual_tipo)
+				&& (expected_size-scale_margin <= actual_size && actual_size <= expected_size+scale_margin)
+				&& (expected_x-translate_margin <= actual_x && actual_x <= expected_x+translate_margin)
+				&& (expected_y-translate_margin <= actual_y && actual_y <= expected_y+translate_margin)){
+					if((actual_tipo=="rectangulo" || actual_tipo=="trapezoide")
+					&& (expected_rotation == actual_rotation || expected_rotation == (actual_rotation+180)%360)){
+						total_correct++;
+					} else if(actual_tipo=="cuadrado"
+					&& (expected_rotation == actual_rotation || expected_rotation == (actual_rotation+90)%360
+					|| expected_rotation == (actual_rotation+180)%360 || expected_rotation == (actual_rotation+270)%360)) {
+						total_correct++;
+					} else if(expected_rotation == actual_rotation){	// triangulo
+							total_correct++;
+					}
+				}
+			}
+			// console.log("---");
+		}
+		console.log("expected_correct:"+expected_correct);
+		console.log("total_correct:"+total_correct);
+		if(total_correct == expected_correct){
+			window.alert("ALL figures correct!!!!!!!");
+		}
+	});
+}
+
 function update_figure_selected() {
-	figure_selected = selector.value;
+	figure_selected = parseInt(selector.value) + lineas_count;
 }
 
 function rotate_CW() {
-	scene.listModels[figure_selected-1].rotate(-5.);
+	scene.listModels[figure_selected-1].rotate(-1*rotate_units);
 	scene.render();
+	checkSolution();
 }
 
 function rotate_CCW() {
-	scene.listModels[figure_selected-1].rotate(5.);
+	scene.listModels[figure_selected-1].rotate(rotate_units);
 	scene.render();
+	checkSolution();
 }
 
 function scale_up() {
-	scene.listModels[figure_selected-1].scale(1.2, 1.2, 1.);
+	scene.listModels[figure_selected-1].scale(1.0+scale_units, 1.0+scale_units, 1.);
 	scene.render();
+	checkSolution();
 }
 
 function scale_down() {
-	scene.listModels[figure_selected-1].scale(0.8, 0.8, 1.);
+	scene.listModels[figure_selected-1].scale(1.0-scale_units, 1.0-scale_units, 1.);
 	scene.render();
+	checkSolution();
 }
 
 function translate_up() {
-	scene.listModels[figure_selected-1].translate(0., 0.02, 0.);
+	scene.listModels[figure_selected-1].translate(0., translate_units, 0.);
 	scene.render();
+	checkSolution();
 }
 
 function translate_down() {
-	scene.listModels[figure_selected-1].translate(0., -0.02, 0.);
+	scene.listModels[figure_selected-1].translate(0., translate_units*-1, 0.);
 	scene.render();
+	checkSolution();
 }
 
 function translate_right() {
-	scene.listModels[figure_selected-1].translate(0.02, 0., 0.);
+	scene.listModels[figure_selected-1].translate(translate_units, 0., 0.);
 	scene.render();
+	checkSolution();
 }
 
 function translate_left() {
-	scene.listModels[figure_selected-1].translate(-0.02, 0., 0.);
+	scene.listModels[figure_selected-1].translate(translate_units*-1, 0., 0.);
 	scene.render();
+	checkSolution();
 }
 
 function clear_canvas() {
@@ -541,54 +675,68 @@ function clear_canvas() {
 	scene.listModels = [];
 	selector.innerHTML = "";
 	figure_counter = 0;
-}
-
-function getRandomInt(min, max) {
-	return Math.floor(Math.random() * (max - min + 1)) + min;
-}
-
-function getRandomFloat(min, max) {
-	return Math.random()*(max - min) + min;
-}
-
-function add_random_model() {
-	var figure = getRandomInt(0, 3);
-	var s = getRandomInt(1, 4);
-	s *= 0.5;
-	var angle = getRandomInt(-40, 40);
-	var currentModel;
-	var xCord = getRandomFloat(-0.8, 0.8);
-	var yCord = getRandomFloat(-0.8, 0.8);
-	if (figure == 0) {
-		currentModel = new Triangle(0*s, .1*s, 0.*s, -.1*s, -.1*s, 0.*s, .1*s, -.1*s, 0.*s);
-	}
-	else if (figure == 1) {
-		currentModel = new Square(-0.1*s,0.1*s,0*s,-0.1*s,-0.1*s,0*s,0.1*s,-0.1*s,0*s,
-															-0.1*s,0.1*s,0*s,0.1*s,0.1*s,0*s,0.1*s,-0.1*s,0*s);
-	}
-	else if (figure == 3) {		// Rectangle
-		currentModel = new Square(-0.15*s,0.1*s,0*s,-0.15*s,-0.1*s,0*s,0.15*s,-0.1*s,0*s,
-															-0.15*s,0.1*s,0*s,0.15*s,0.1*s,0*s,0.15*s,-0.1*s,0*s);
-	}
-	else {		// Trapezoid
-		currentModel = new Square(0*s/3, .05*s/3, 0.*s/3, -.35*s/3, -.15*s/3, 0.*s/3, .15*s/3, -.15*s/3, 0.*s/3,
-															-0.20*s/3,0.05*s/3,0*s/3,-0.35*s/3,-0.15*s/3,0*s/3,0*s/3, .05*s/3, 0.*s/3);
-	}
-	currentModel.drawingMode="solid-single-color";
-	currentModel.translate(xCord, yCord, 0);
-	currentModel.rotate(angle);
-	scene.addModel(currentModel);
-	scene.render();
+	lineas_count = 0;
+	loadLevel(current_level);
 }
 
 function initMouseEventHandlers() {
 	canvas.addEventListener("mousedown", mouseDownEventListener, false);
 }
 
-function loadImage() {
-	var dataURL = canvas.toDataURL('image/jpeg');
-  document.getElementById('canvasImg').src = dataURL;
+function loadLevel(level){
+	var x1 = -1
+	var y1 = -1
+	var first_x = -1
+	var first_y = -1
+	nivelesRef.child(level).child("lineas").once('value').then(function(snapshot) {
+		var linea = snapshot.val();
+		for(var key in linea){
+			var x2 = parseFloat(linea[key].x);
+			var y2 = parseFloat(linea[key].y);
+			if(x1 == -1 && x1 == -1){
+				var first_x = x2
+				var first_y = y2
+			} else {
+				scene.addModel(new Line(x1, y1, 1, x2, y2, 1));
+				lineas_count++;
+				// console.log("x1: "+x1); console.log("y1: "+y1);
+				// console.log("x2: "+x2); console.log("y2: "+y2);
+				// console.log("----");
+			}
+			x1 = x2
+			y1 = y2
+		}
+		if(x1 != -1 && x1 != -1){
+			scene.addModel(new Line(x1, y1, 1, first_x, first_y, 1));
+			lineas_count++;
+		}
+		scene.render();
+	});
 }
+
+function getUrlVars() {
+	var vars = {};
+	var parts = window.location.href.replace(/[?&]+([^=&]+)=([^&]*)/gi, function(m,key,value) {
+	    vars[key] = value;
+	});
+	return vars;
+}
+
+(function(){
+	// Initialize Database
+	const config = {
+		apiKey: "AIzaSyDrk-0sxzRRQiUpyFgbD71OHSKoWU2XS0E",
+	  authDomain: "shape-it-e95cf.firebaseapp.com",
+	  databaseURL: "https://shape-it-e95cf.firebaseio.com",
+	  projectId: "shape-it-e95cf",
+	  storageBucket: "shape-it-e95cf.appspot.com",
+	  messagingSenderId: "621436843578"
+	};
+	firebase.initializeApp(config);
+
+	databaseRef = firebase.database();
+	nivelesRef = databaseRef.ref("niveles2d/");
+}());
 
 function main() {
 	canvas = document.getElementById("canvas");
@@ -602,12 +750,16 @@ function main() {
 	var camera1 = new Camera();
 	scene.addCamera(camera1);
 	initMouseEventHandlers();
+
+	clear_canvas();
 	scene.render();
 
-	add_random_model();
-	add_random_model();
-	add_random_model();
-
-	loadImage();
-	clear_canvas();
+  var display_ID = document.getElementById("sessionID");
+  session_ID = getUrlVars()["session"];
+  if(session_ID == null){
+		console.log("session_ID is UNDEFINED");
+  } else {
+    display_ID.innerHTML = session_ID;
+    console.log("session:"+session_ID);
+  }
 }
