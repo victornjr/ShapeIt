@@ -14,7 +14,8 @@ var dragging;	// Dragging or not
 var xLast;		// last position of the mouse
 var yLast;
 
-var winRotX, winRotY, win = false;
+var winRotX, winRotY;
+var win = false;
 
 class Scene {
 	constructor() {
@@ -479,8 +480,8 @@ function mouseDownEventListener(event) {
 
 function mouseUpEventListener(event) {
 	dragging = false;	// mouse is released
-	checkWin();
-	if(win == true){
+
+	if(checkWin() == true){
 		console.log("YOU WIN!!!");
 	}
 }
@@ -553,10 +554,12 @@ function checkWin(){
 	var deltaY = Math.abs(winRotY - scene.camera.rotY);
 
 	if(deltaX < 0.5 && deltaY < 0.5){
-		win = true;
+		//win = true;
 		console.log("Esta cerca de Y, deltaY: " + deltaY);
 		console.log("Esta cerca de X, deltaX: " + deltaX);
+		return true;
 	}
+	return false;
 }
 
 function loadLevel(levelI){
