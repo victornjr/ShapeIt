@@ -601,7 +601,7 @@ function readJSON(){
 
 	    }
 	}
-	var chargeString = "../public/json/";
+	var chargeString = "../json/";
 	var levelJSON = level.concat(".json");
 	request.open("GET",chargeString.concat(levelJSON) , true);
 	//console.log(elemento.vertices);
@@ -721,5 +721,22 @@ function main() {
 	//levelModel.setDrawingMode("solid-per-vertex-color");
 
 	// cameraHome();
+
+}
+
+function starsGot(stars)
+{
+
+if(stars==1){
+	document.getElementById('nStars').innerHTML = "☆";
+}
+if(stars==2){
+	document.getElementById('nStars').innerHTML = "☆☆";
+}
+if(stars==3){
+	document.getElementById('nStars').innerHTML = "☆☆☆";
+}
+
+
 
 }

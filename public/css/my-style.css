@@ -39,3 +39,8 @@
   width: 150px;
   border-radius: 50%;
 }
+
+.modalText {
+	color: black;
+	text-align: center;
+}
