@@ -1,4 +1,4 @@
-var session_ID = "?";
+var username = "?";
 
 function getUrlVars() {
   var vars = {};
@@ -9,7 +9,7 @@ function getUrlVars() {
 }
 
 function chooseLevel(level){
-  window.location.href='2d-mode.html?session='+session_ID+'&level='+level;
+  window.location.href='2d-mode.html?u='+username+'&level='+level;
 }
 
 (function(){
@@ -29,33 +29,36 @@ function chooseLevel(level){
 }());
 
 window.onload = function(){
-  var display_ID = document.getElementById("sessionID");
-  session_ID = getUrlVars()["session"];
-  if(session_ID == null){
-    sessionsRef.push({
-      "2d":{
-        "1":{
-          "score":0.0
-        }
-      },
-      "3d":{
-        "1":{
-          "score":0.0
-        }
-      }
-    }, function(error) {
-      if (error) {
-        console.log("Data could not be saved." + error);
-      } else {
-        console.log("Data saved successfully.");
-      }
-    }).then((snap) => {
-      session_ID = snap.key;
-      display_ID.innerHTML = session_ID;
-      console.log("session:"+session_ID);
-    });
+  var display_username = document.getElementById("username");
+  username = getUrlVars()["u"];
+  if(username == null){
+    window.alert("username not defined");
   } else {
-    display_ID.innerHTML = session_ID;
-    console.log("session:"+session_ID);
+    display_username.innerHTML = username;
+    console.log("username:"+username);
+
+    sessionsRef.child(username).child('2d').once('value').then(function(snapshot) {
+			var niveles = snapshot.val();
+      console.log(niveles)
+			for(var nivel in niveles){
+				console.log("nivel:"+nivel);
+        var score = niveles[nivel].score;
+        var nivelEstrellasDiv = document.getElementById('levelstars'+nivel);
+				console.log("score:"+score);
+        // update button color
+        if(score == 3){
+          $('#level'+nivel).removeClass("btn btn-secondary btn-block").addClass("btn btn-success btn-block");
+        } else if(score == 2){
+          $('#level'+nivel).removeClass("btn btn-secondary btn-block").addClass("btn btn-info btn-block");
+        } else {
+          $('#level'+nivel).removeClass("btn btn-secondary btn-block").addClass("btn btn-warning btn-block");
+        }
+        // update button score
+        nivelEstrellasDiv.innerHTML = "";
+        for(var i=0; i<score; i++){
+          nivelEstrellasDiv.innerHTML += '<i class="fa fa-star"></i>';
+        }
+			}
+    });
   }
 }

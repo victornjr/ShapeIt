@@ -9,7 +9,7 @@ var yCord = 0;
 var v1r,v1g,v1b,v2r,v2g,v2b,v3r,v3g,v3b,angle;
 var dm;
 var figure_selector, figure_selected, figure_counter=0;
-var databaseRef, nivelesRef;
+var databaseRef, nivelesRef, sessionsRef;
 
 var translate_units = 0.01;
 var scale_units = 0.05;
@@ -19,7 +19,7 @@ var scale_margin = 0.4;
 
 var lineas_count = 0;
 var current_level = 4;
-var session_ID = "?";
+var username = "?";
 
 class Scene {
 	constructor() {
@@ -754,12 +754,12 @@ function main() {
 	clear_canvas();
 	scene.render();
 
-  var display_ID = document.getElementById("sessionID");
-  session_ID = getUrlVars()["session"];
-  if(session_ID == null){
-		console.log("session_ID is UNDEFINED");
+  var display_username = document.getElementById("username");
+  username = getUrlVars()["u"];
+  if(username == null){
+		console.log("username is UNDEFINED");
   } else {
-    display_ID.innerHTML = session_ID;
-    console.log("session:"+session_ID);
+    display_username.innerHTML = username;
+    console.log("username:"+username);
   }
 }
