@@ -18,7 +18,8 @@ var translate_margin = 0.02;
 var scale_margin = 0.4;
 
 var lineas_count = 0;
-var current_level = 2;
+var current_level = 4;
+var session_ID = "?";
 
 class Scene {
 	constructor() {
@@ -590,7 +591,7 @@ function checkSolution() {
 				// console.log("looking at size:"+  actual_size  +"  expected:"+expected_size);
 				// console.log("looking at X:"+  actual_x  +"  expected:"+expected_x);
 				// console.log("looking at Y:"+  actual_y  +"  expected:"+expected_y);
-				console.log("looking at rotation:"+  actual_rotation  +"  expected:"+expected_rotation);
+				// console.log("looking at rotation:"+  actual_rotation  +"  expected:"+expected_rotation);
 				if((expected_tipo == actual_tipo)
 				&& (expected_size-scale_margin <= actual_size && actual_size <= expected_size+scale_margin)
 				&& (expected_x-translate_margin <= actual_x && actual_x <= expected_x+translate_margin)
@@ -713,20 +714,28 @@ function loadLevel(level){
 	});
 }
 
-(function(){
-    // Initialize Database
-    const config = {
-				apiKey: "AIzaSyDrk-0sxzRRQiUpyFgbD71OHSKoWU2XS0E",
-		    authDomain: "shape-it-e95cf.firebaseapp.com",
-		    databaseURL: "https://shape-it-e95cf.firebaseio.com",
-		    projectId: "shape-it-e95cf",
-		    storageBucket: "shape-it-e95cf.appspot.com",
-		    messagingSenderId: "621436843578"
-    };
-    firebase.initializeApp(config);
+function getUrlVars() {
+	var vars = {};
+	var parts = window.location.href.replace(/[?&]+([^=&]+)=([^&]*)/gi, function(m,key,value) {
+	    vars[key] = value;
+	});
+	return vars;
+}
 
-    databaseRef = firebase.database();
-		nivelesRef = databaseRef.ref("niveles2d/");
+(function(){
+	// Initialize Database
+	const config = {
+		apiKey: "AIzaSyDrk-0sxzRRQiUpyFgbD71OHSKoWU2XS0E",
+	  authDomain: "shape-it-e95cf.firebaseapp.com",
+	  databaseURL: "https://shape-it-e95cf.firebaseio.com",
+	  projectId: "shape-it-e95cf",
+	  storageBucket: "shape-it-e95cf.appspot.com",
+	  messagingSenderId: "621436843578"
+	};
+	firebase.initializeApp(config);
+
+	databaseRef = firebase.database();
+	nivelesRef = databaseRef.ref("niveles2d/");
 }());
 
 function main() {
@@ -744,4 +753,13 @@ function main() {
 
 	clear_canvas();
 	scene.render();
+
+  var display_ID = document.getElementById("sessionID");
+  session_ID = getUrlVars()["session"];
+  if(session_ID == null){
+		console.log("session_ID is UNDEFINED");
+  } else {
+    display_ID.innerHTML = session_ID;
+    console.log("session:"+session_ID);
+  }
 }
