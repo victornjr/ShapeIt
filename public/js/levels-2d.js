@@ -36,5 +36,29 @@ window.onload = function(){
   } else {
     display_username.innerHTML = username;
     console.log("username:"+username);
+
+    sessionsRef.child(username).child('2d').once('value').then(function(snapshot) {
+			var niveles = snapshot.val();
+      console.log(niveles)
+			for(var nivel in niveles){
+				console.log("nivel:"+nivel);
+        var score = niveles[nivel].score;
+        var nivelEstrellasDiv = document.getElementById('levelstars'+nivel);
+				console.log("score:"+score);
+        // update button color
+        if(score == 3){
+          $('#level'+nivel).removeClass("btn btn-secondary btn-block").addClass("btn btn-success btn-block");
+        } else if(score == 2){
+          $('#level'+nivel).removeClass("btn btn-secondary btn-block").addClass("btn btn-info btn-block");
+        } else {
+          $('#level'+nivel).removeClass("btn btn-secondary btn-block").addClass("btn btn-warning btn-block");
+        }
+        // update button score
+        nivelEstrellasDiv.innerHTML = "";
+        for(var i=0; i<score; i++){
+          nivelEstrellasDiv.innerHTML += '<i class="fa fa-star"></i>';
+        }
+			}
+    });
   }
 }
