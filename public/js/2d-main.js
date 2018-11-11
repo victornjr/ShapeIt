@@ -10,13 +10,15 @@ var v1r,v1g,v1b,v2r,v2g,v2b,v3r,v3g,v3b,angle;
 var dm;
 var figure_selector, figure_selected, figure_counter=0;
 var databaseRef, nivelesRef;
-var translate_units = 0.01
-var scale_units = 0.05
-var rotate_units = 5.0;
-var lineas_count = 0;
-var current_level = 1;
 
-//var x1, x2, x3, y1, y2, y3, z1, z2, z3;
+var translate_units = 0.01;
+var scale_units = 0.05;
+var rotate_units = 5.0;
+var translate_margin = 0.02;
+var scale_margin = 0.4;
+
+var lineas_count = 0;
+var current_level = 2;
 
 class Scene {
 	constructor() {
@@ -167,7 +169,7 @@ class Buffer {
 }
 
 class Model {
-	constructor() {
+	constructor(tipo) {
 		v1r=document.getElementById("red1").value/100;
 		v1g=document.getElementById("green1").value/100;
 		v1b=document.getElementById("blue1").value/100;
@@ -178,6 +180,7 @@ class Model {
 		this.color = [v1r, v1g, v1b, 1.];
 		this.pointSize = 3.;
 		this.drawingMode = "solid-single-color";
+		this.tipo = tipo;
 		this.size = 1.0;
 		this.centroid_x = 0.0;
 		this.centroid_y = 0.0;
@@ -214,7 +217,7 @@ class Model {
 	}
 	scale(tx, ty, tz) {
 		mat4.scale(this.modelMatrix, this.modelMatrix, [tx, ty, tz]);
-		this.size += tx;
+		this.size *= tx;
 		console.log("size: "+this.size);
 	}
 	rotate(angle) {
@@ -288,7 +291,7 @@ class Triangle extends Model {
 		v3r=document.getElementById("red3").value/100;
 		v3g=document.getElementById("green3").value/100;
 		v3b=document.getElementById("blue3").value/100;
-		super();
+		super("triangulo");
 		if (!arguments.length){
 			this.positions = [0., 0.15, 0.,   // V0
 										   -0.15,  -0.15, 0., // v1
@@ -333,7 +336,7 @@ class Triangle extends Model {
 
 class Square extends Model {
 	constructor(x1, y1, z1, x2, y2, z2, x3, y3, z3,
-							x4, y4, z4, x5, y5, z5, x6, y6, z6) {
+							x4, y4, z4, x5, y5, z5, x6, y6, z6, tipo) {
 		var menuModo=document.getElementById("menuModo");
 		var modoSeleccionado=menuModo.options[menuModo.selectedIndex].value;
 		v1r=document.getElementById("red1").value/100;
@@ -345,7 +348,7 @@ class Square extends Model {
 		v3r=document.getElementById("red3").value/100;
 		v3g=document.getElementById("green3").value/100;
 		v3b=document.getElementById("blue3").value/100;
-		super();
+		super(tipo);
 		if (!arguments.length){
 			this.positions = [0., 0.15, 0.,   	// V0
 										   -0.15,  -0.15, 0., // V1
@@ -404,7 +407,7 @@ class Line extends Model {
 		v2r=document.getElementById("red2").value/100;
 		v2g=document.getElementById("green2").value/100;
 		v2b=document.getElementById("blue2").value/100;
-		super();
+		super("linea");
 		if (!arguments.length){
 			this.positions = [0., 0.15, 0.,   // V0
 										   -0.15,  -0.15, 0., // v1
@@ -473,8 +476,9 @@ function mouseDownEventListener(event) {
 	var menuModo=document.getElementById("menuModo");
 	var modoSeleccionado=menuModo.options[menuModo.selectedIndex].value;
 	var currentModel;
-	var menuSize=document.getElementById("menuSize");
-	var s=menuSize.options[menuSize.selectedIndex].value;
+	// var menuSize=document.getElementById("menuSize");
+	// var s=menuSize.options[menuSize.selectedIndex].value;
+	var s = 0.5;
 
 	var x = event.clientX;
 	var y = event.clientY;
@@ -503,7 +507,7 @@ function mouseDownEventListener(event) {
 	}
 	else if (figuraSeleccionada == "square") {
 		currentModel = new Square(-0.1*s,0.1*s,0*s,-0.1*s,-0.1*s,0*s,0.1*s,-0.1*s,0*s,
-															-0.1*s,0.1*s,0*s,0.1*s,0.1*s,0*s,0.1*s,-0.1*s,0*s);
+															-0.1*s,0.1*s,0*s,0.1*s,0.1*s,0*s,0.1*s,-0.1*s,0*s,"cuadrado");
  		if(modoSeleccionado=="solido"){
 			currentModel.drawingMode="solid-single-color";
 		}
@@ -519,8 +523,8 @@ function mouseDownEventListener(event) {
 		currentModel.translate(xCord, yCord, 0);
 	}
 	else if (figuraSeleccionada == "rectangle") {
-		currentModel = new Square(-0.15*s,0.1*s,0*s,-0.15*s,-0.1*s,0*s,0.15*s,-0.1*s,0*s,
-															-0.15*s,0.1*s,0*s,0.15*s,0.1*s,0*s,0.15*s,-0.1*s,0*s);
+		currentModel = new Square(-0.85*s,0.1*s,0*s,-0.85*s,-0.1*s,0*s,0.85*s,-0.1*s,0*s,
+															-0.85*s,0.1*s,0*s,0.85*s,0.1*s,0*s,0.85*s,-0.1*s,0*s,"rectangulo");
  		if(modoSeleccionado=="solido"){
 			currentModel.drawingMode="solid-single-color";
 		}
@@ -537,7 +541,7 @@ function mouseDownEventListener(event) {
 	}
 	else {		// Trapezoid
 		currentModel = new Square(0*s/3, .05*s/3, 0.*s/3, -.35*s/3, -.15*s/3, 0.*s/3, .15*s/3, -.15*s/3, 0.*s/3,
-															-0.20*s/3,0.05*s/3,0*s/3,-0.35*s/3,-0.15*s/3,0*s/3,0*s/3, .05*s/3, 0.*s/3);
+															-0.20*s/3,0.05*s/3,0*s/3,-0.35*s/3,-0.15*s/3,0*s/3,0*s/3, .05*s/3, 0.*s/3,"trapezoide");
  		if(modoSeleccionado=="solido"){
 			currentModel.drawingMode="solid-single-color";
 		}
@@ -564,6 +568,55 @@ function mouseDownEventListener(event) {
 	selector.value = figure_counter;
 }
 
+function checkSolution() {
+	nivelesRef.child(current_level).child("figuras_solucion").once('value').then(function(snapshot) {
+		var figura = snapshot.val();
+		var expected_correct = figura.length-1;
+		var total_correct = 0;
+		for(var key in figura){
+			var expected_tipo = figura[key].tipo;
+			var expected_size = parseFloat(figura[key].size);
+			var expected_x = parseFloat(figura[key].x);
+			var expected_y = parseFloat(figura[key].y);
+			var expected_rotation = parseFloat(figura[key].rotation);
+			for(var drawn=lineas_count; drawn<scene.listModels.length; drawn++){
+				var model_drawn = scene.listModels[drawn];
+				var actual_tipo = model_drawn.tipo;
+				var actual_size = model_drawn.size;
+				var actual_x = model_drawn.centroid_x;
+				var actual_y = model_drawn.centroid_y;
+				var actual_rotation = model_drawn.rotation;
+				// console.log("looking at tipo:"+actual_tipo+"  expected:"+expected_tipo);
+				// console.log("looking at size:"+  actual_size  +"  expected:"+expected_size);
+				// console.log("looking at X:"+  actual_x  +"  expected:"+expected_x);
+				// console.log("looking at Y:"+  actual_y  +"  expected:"+expected_y);
+				console.log("looking at rotation:"+  actual_rotation  +"  expected:"+expected_rotation);
+				if((expected_tipo == actual_tipo)
+				&& (expected_size-scale_margin <= actual_size && actual_size <= expected_size+scale_margin)
+				&& (expected_x-translate_margin <= actual_x && actual_x <= expected_x+translate_margin)
+				&& (expected_y-translate_margin <= actual_y && actual_y <= expected_y+translate_margin)){
+					if((actual_tipo=="rectangulo" || actual_tipo=="trapezoide")
+					&& (expected_rotation == actual_rotation || expected_rotation == (actual_rotation+180)%360)){
+						total_correct++;
+					} else if(actual_tipo=="cuadrado"
+					&& (expected_rotation == actual_rotation || expected_rotation == (actual_rotation+90)%360
+					|| expected_rotation == (actual_rotation+180)%360 || expected_rotation == (actual_rotation+270)%360)) {
+						total_correct++;
+					} else if(expected_rotation == actual_rotation){	// triangulo
+							total_correct++;
+					}
+				}
+			}
+			// console.log("---");
+		}
+		console.log("expected_correct:"+expected_correct);
+		console.log("total_correct:"+total_correct);
+		if(total_correct == expected_correct){
+			window.alert("ALL figures correct!!!!!!!");
+		}
+	});
+}
+
 function update_figure_selected() {
 	figure_selected = parseInt(selector.value) + lineas_count;
 }
@@ -571,41 +624,49 @@ function update_figure_selected() {
 function rotate_CW() {
 	scene.listModels[figure_selected-1].rotate(-1*rotate_units);
 	scene.render();
+	checkSolution();
 }
 
 function rotate_CCW() {
 	scene.listModels[figure_selected-1].rotate(rotate_units);
 	scene.render();
+	checkSolution();
 }
 
 function scale_up() {
 	scene.listModels[figure_selected-1].scale(1.0+scale_units, 1.0+scale_units, 1.);
 	scene.render();
+	checkSolution();
 }
 
 function scale_down() {
 	scene.listModels[figure_selected-1].scale(1.0-scale_units, 1.0-scale_units, 1.);
 	scene.render();
+	checkSolution();
 }
 
 function translate_up() {
 	scene.listModels[figure_selected-1].translate(0., translate_units, 0.);
 	scene.render();
+	checkSolution();
 }
 
 function translate_down() {
 	scene.listModels[figure_selected-1].translate(0., translate_units*-1, 0.);
 	scene.render();
+	checkSolution();
 }
 
 function translate_right() {
 	scene.listModels[figure_selected-1].translate(translate_units, 0., 0.);
 	scene.render();
+	checkSolution();
 }
 
 function translate_left() {
 	scene.listModels[figure_selected-1].translate(translate_units*-1, 0., 0.);
 	scene.render();
+	checkSolution();
 }
 
 function clear_canvas() {
@@ -682,6 +743,5 @@ function main() {
 	initMouseEventHandlers();
 
 	clear_canvas();
-	loadLevel(current_level);
 	scene.render();
 }
