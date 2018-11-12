@@ -487,12 +487,22 @@ function mouseUpEventListener(event) {
 	dragging = false;	// mouse is released
 	username = "victor";
 	if(checkWin() == true){
+		var sc;
 		stopwatch.pause();
 		$("#scoreModal").modal('show');
 		document.getElementById('finalTime').innerHTML = stopwatch;
-		starsGot(3);
+		var finalSeconds = stopwatch.getSeconds();
+		if(finalSeconds < 10){
+			sc = 3;
+		}
+		else if (finalSeconds < 30) {
+			sc = 2;
+		}
+		else{
+			sc = 1;
+		}
+		starsGot(sc);
 		//Save the score on firebase
-		var sc = 3;
 		var writeScore = {};
 		writeScore[level] = {"score": sc };
 		sessionsRef.child(username).child("3d").update(writeScore);

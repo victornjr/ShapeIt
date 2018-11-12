@@ -170,6 +170,18 @@
       return ('0' + min).slice(-2) + ':' + ('0' + sec).slice(-2) ;
     };
 
+    Stopwatch.prototype.getSeconds = function() {
+      var duration, hr, min, ms, sec;
+      duration = this.getElapsed();
+      ms = duration % 1000;
+      duration = (duration - ms) / 1000;
+      sec = duration % 60;
+      duration = (duration - sec) / 60;
+      min = duration % 60;
+      hr = (duration - min) / 60;
+      return sec + (min*60);
+    };
+
     Stopwatch.prototype._startTicking = function(callback, resolution) {
       var tick;
       tick = this._setTick(callback, resolution);

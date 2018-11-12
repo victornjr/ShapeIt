@@ -614,12 +614,21 @@ function checkSolution() {
 		console.log("expected_correct:"+expected_correct);
 		console.log("total_correct:"+total_correct);
 		if(total_correct == expected_correct){
+			var sc;
 			stopwatch.pause();
+			//console.log("Final seconds" + stopwatch.getSeconds()); //print final minutes to use in final score
 			$("#scoreModal").modal('show');
 			document.getElementById('finalTime').innerHTML = stopwatch;
-
-
-			var sc = 2;
+			var finalSeconds = stopwatch.getSeconds();
+			if(finalSeconds < 10){
+				sc = 3;
+			}
+			else if (finalSeconds < 30) {
+				sc = 2;
+			}
+			else{
+				sc = 1;
+			}
 			starsGot(sc);
 			var writeScore = {};
 			writeScore[current_level] = {"score": sc };
