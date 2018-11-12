@@ -487,7 +487,7 @@ function mouseUpEventListener(event) {
 	username = "victor";
 	if(checkWin() == true){
 		stopwatch.pause();
-		console.log("YOU WIN!!! Hello");
+		//console.log("YOU WIN!!! Hello");
 		$("#scoreModal").modal('show');
 		document.getElementById('finalTime').innerHTML = stopwatch;
 		starsGot(3);
@@ -656,6 +656,15 @@ function createStopWatch(){
 	stopwatch.start();
 }
 
+function pauseLevel(){
+	stopwatch.pause();
+}
+
+function resumeLevel(){
+	stopwatch.start();
+	$("#pauseModal").modal('hide');
+}
+
 function main() {
 	level = getUrlVars()["level"];
 	readJSON();
@@ -671,19 +680,14 @@ function main() {
 
 	switch (level){
 		case "1":
-			levelModel = new Cube();
-			//levelModel.setColor(1., 0., 0., 1.);
-			//levelModel.setDrawingMode("solid-per-vertex-color");
-			//levelModel.setDrawingMode("wireframe");
+			setTimeout(function(){
+				levelModel = new Mono();
+			}, 800);
 			break;
 		case "2":
 			setTimeout(function(){
 				levelModel = new Mono();
-				//console.log("Hola final");
 			}, 800);
-
-			//readJSON(levelModel);
-			//levelModel.setColor(1., 0., 0., 1.);
 			break;
 		case "3":
 			break;
@@ -709,16 +713,6 @@ function main() {
 			}, 800);
 			break;
 		case "8":
-			setTimeout(function(){
-				levelModel = new Mono();
-			}, 800);
-			break;
-		case "9":
-			setTimeout(function(){
-				levelModel = new Mono();
-			}, 800);
-			break;
-		case "10":
 			setTimeout(function(){
 				levelModel = new Mono();
 			}, 800);
@@ -752,7 +746,7 @@ function main() {
 		console.log("modelo imagen X: " + camera1.rotX);
 		console.log("modelo imagen Y: " + camera1.rotY);
 		loadImage();
-		levelModel.setColor(1., 0., 0., 1.);
+		levelModel.setColor(0.16, 0.36, 0.68);
 		setTimeout(function(){
 			cameraHome();
 			//add_random_model();

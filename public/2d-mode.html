@@ -124,40 +124,39 @@
 
 
     <header class="masthead">
-      <div class="row">
-        <div  class="col-md-12">
-          <center>
-            <label class="time"></label>
-          </center>
-        </div>
-      </div>
-      <div class="row">
-    			<div  class="col-md-12">
+
+  <div class="row">
+    			<div  class="col-md-6">
             <center>
               <br><br>
         			<canvas id="canvas" width="500" height="500"></canvas>
             </center>
       		</div>
-      </div>
 
-    		<div class="col-md-12">
+
+    		<div class="col-md-6">
             <br><br>
           <div class="row">
             <div class="col-md-3"></div>
 
-<div class="col-md-2">
-
-
+<div class="col-md-12">
+<div class="col-md-4"></div>
+<center>
+<div class="col-md-4">
           Selection:
     			<select class="custom-select" id="selector" onclick="update_figure_selected()"> </select> </br>
           Shape:
     			<select class="custom-select" id="menuFigura">
+</div>
+</center>
+
 
     			  <option value="triangle">Triangle</option>
     				<option value="square">Square</option>
     				<option value="rectangle">Rectangle</option>
     				<option value="trapezoid">Trapezoid</option>
     			</select>
+          <div class="col-md-4"></div>
     			<!-- </br> </br> -->
     			<!-- Modo : -->
     			<select style="display:none" id="menuModo">
@@ -174,7 +173,7 @@
     				<option value=7.645888969671117>Extra Grande</option>
     			</select> -->
         </div>
-<div class="col-md-2">
+<div class="col-md-12">
     		<center>
     			<button type="button" class="btn btn-info btn-lg " onclick="translate_up()">&nbsp <i class="fa fa-arrow-up" aria-hidden="true"></i>&nbsp</button> </br> </br>
     			<button type="button" class="btn btn-info btn-lg" onclick="translate_left()">&nbsp<i class="fa fa-arrow-left"></i>&nbsp</button>
@@ -183,14 +182,16 @@
 
         </center>
 </div>
-<div class="col-md-2">
+<div class="col-md-12">
         <center>
     			<button type="button" class="btn btn-info" onclick="scale_up()"><i class="fas fa-plus"></i></i></button>
     			<button type="button" class="btn btn-info" onclick="scale_down()"><i class="fas fa-minus"></i></i></button>
     			<button type="button" class="btn btn-info" onclick="rotate_CCW()"><i class="fas fa-undo" aria-hidden="true"></i></button>
     			<button type="button" class="btn btn-info" onclick="rotate_CW()"><i class="fas fa-redo"></i></button> </br>
           <br><br>
+          <button onclick="pauseLevel();" type="button" class="btn btn-primary" data-toggle="modal" data-target="#pauseModal">Pause</button>
           <button type="button" class="btn btn-danger" onclick="clear_canvas()">Clear</button>
+
     		</center>
       </div>
       <div class="col-md-3"></div>
@@ -211,12 +212,15 @@
 
     		</div>
     	</div>
-      <div  class="row">
-        <div class="col-md-12">
-          <center>
-            username: <span id="username"></span>
-          </center>
-        </div>
+    </div>
+
+      <div  class="col-md-12">
+        <center>
+        <h1 class="time"></H1>
+        </center>
+        <center>
+          username: <span id="username"></span>
+        </center>
       </div>
 
       <!-- Modal -->
@@ -238,12 +242,35 @@
       		</center>
             </div>
             <div class="modal-footer">
-              <button onclick="window.location.href='levels2D.html?u='+username" type="button" class="btn btn-primary mr-auto" data-dismiss="modal">Back</button>
-              <button onclick="nextLevel()" type="button" class="btn btn-success">Next Level</button>
+              <button type="button" class="btn btn-primary mr-auto" data-dismiss="modal">Menu</button>
+              <button type="button" class="btn btn-success">Next Level</button>
             </div>
           </div>
         </div>
       </div>
+
+      <!-- Modal -->
+      <div class="modal fade modal-score" data-keyboard="false" data-backdrop="static" id="pauseModal" >
+        <div class="modal-dialog modal-dialog-centered" role="document">
+          <div class="modal-content">
+            <div class="text-center">
+
+      				<br>
+              <h5 class="modalText" >PAUSE</h5>
+
+
+              </button>
+            </div>
+            <div class="modal-body">
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-primary mr-auto" data-dismiss="modal">Menu</button>
+              <button onclick="resumeLevel();" type="button" class="btn btn-success">Resume</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
     </header>
 
 

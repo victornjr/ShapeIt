@@ -617,9 +617,10 @@ function checkSolution() {
 			stopwatch.pause();
 			$("#scoreModal").modal('show');
 			document.getElementById('finalTime').innerHTML = stopwatch;
-			starsGot(3);
 
-			var sc = 3;
+
+			var sc = 2;
+			starsGot(sc);
 			var writeScore = {};
 			writeScore[current_level] = {"score": sc };
 			sessionsRef.child(username).child("2d").update(writeScore);
@@ -748,6 +749,15 @@ function getUrlVars() {
 	nivelesRef = databaseRef.ref("niveles2d/");
 	sessionsRef = databaseRef.ref("sessions/");
 }());
+
+function pauseLevel(){
+	stopwatch.pause();
+}
+
+function resumeLevel(){
+	stopwatch.start();
+	$("#pauseModal").modal('hide');
+}
 
 function starsGot(stars){
 	if(stars==1){
