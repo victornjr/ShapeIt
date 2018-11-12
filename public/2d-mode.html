@@ -148,15 +148,15 @@
 <div class="col-md-2">
 
 
-          Selección:
+          Selection:
     			<select class="custom-select" id="selector" onclick="update_figure_selected()"> </select> </br>
-          Figura:
+          Shape:
     			<select class="custom-select" id="menuFigura">
 
-    			  <option value="triangle">Triángulo</option>
-    				<option value="square">Cuadrado</option>
-    				<option value="rectangle">Rectángulo</option>
-    				<option value="trapezoid">Trapezoide</option>
+    			  <option value="triangle">Triangle</option>
+    				<option value="square">Square</option>
+    				<option value="rectangle">Rectangle</option>
+    				<option value="trapezoid">Trapezoid</option>
     			</select>
     			<!-- </br> </br> -->
     			<!-- Modo : -->
@@ -190,7 +190,7 @@
     			<button type="button" class="btn btn-info" onclick="rotate_CCW()"><i class="fas fa-undo" aria-hidden="true"></i></button>
     			<button type="button" class="btn btn-info" onclick="rotate_CW()"><i class="fas fa-redo"></i></button> </br>
           <br><br>
-          <button type="button" class="btn btn-danger" onclick="clear_canvas()">Borrar</button>
+          <button type="button" class="btn btn-danger" onclick="clear_canvas()">Clear</button>
     		</center>
       </div>
       <div class="col-md-3"></div>
@@ -238,8 +238,8 @@
       		</center>
             </div>
             <div class="modal-footer">
-              <button type="button" class="btn btn-primary mr-auto" data-dismiss="modal">Back</button>
-              <button type="button" class="btn btn-success">Next Level</button>
+              <button onclick="window.location.href='levels2D.html?u='+username" type="button" class="btn btn-primary mr-auto" data-dismiss="modal">Back</button>
+              <button onclick="nextLevel()" type="button" class="btn btn-success">Next Level</button>
             </div>
           </div>
         </div>

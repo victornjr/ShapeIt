@@ -614,7 +614,6 @@ function checkSolution() {
 		console.log("expected_correct:"+expected_correct);
 		console.log("total_correct:"+total_correct);
 		if(total_correct == expected_correct){
-			window.alert("ALL figures correct!!!!!!!");
 			stopwatch.pause();
 			$("#scoreModal").modal('show');
 			document.getElementById('finalTime').innerHTML = stopwatch;
@@ -769,6 +768,11 @@ function createStopWatch(){
 		time.innerHTML = stopwatch;
 	}, 5);
  	stopwatch.start();
+}
+
+function nextLevel(){
+	current_level++;
+	window.location.href='2d-mode.html?u='+username+'&level='+current_level;
 }
 
 function main() {
