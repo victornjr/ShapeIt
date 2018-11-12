@@ -455,17 +455,6 @@ class Camera {
 
 	update() {
 		this.lookAt(this.eye, this.center, this.up);
-		var signX = 1;
-		var signY = 1;
-		if(this.rotX < 0.){
-			signX = -signX;
-		}
-		if(this.rotY < 0.){
-			signY = -signY;
-		}
-
-		this.rotX = signX*(this.rotX % 6);
-		this.rotX = signY*(this.rotY % 6);
 		this.rotate(this.rotX, [1., 0., 0.]);
 		this.rotate(this.rotY, [0., 1., 0.]);
 	}
@@ -573,18 +562,19 @@ function getRandomInt(min, max) {
 }
 
 function checkWin(){
+	var actualRotX = scene.camera.rotX;
+	var actualRotY = scene.camera.rotY;
 
-	console.log("Original X: " + winRotX);
-	console.log("Original Y: " + winRotY);
-	var deltaX = Math.abs(winRotX - scene.camera.rotX);
-	var deltaY = Math.abs(winRotY - scene.camera.rotY);
-	console.log("Move Y: " + deltaY);
-	console.log("Move X: " + deltaX);
+	while(actualRotX < 0){
+		actualRotX += 6;
+	}
+	while(actualRotY < 0){
+		actualRotY += 6;
+	}
+	var deltaX = Math.abs(winRotX - (actualRotX%6));
+	var deltaY = Math.abs(winRotY - (actualRotY%6));
 
-	if(deltaX < 0.5 && deltaY < 0.5){
-		//win = true;
-		console.log("Esta cerca de Y, deltaY: " + deltaY);
-		console.log("Esta cerca de X, deltaX: " + deltaX);
+	if(deltaX < 0.8 && deltaY < 0.8){
 		return true;
 	}
 	return false;
@@ -745,8 +735,20 @@ function main() {
 		initEventHandlers();
 
 		add_random_model();
+
 		winRotX = camera1.rotX;
 		winRotY = camera1.rotY;
+
+		while(winRotX < 0){
+			winRotX += 6;
+		}
+		while(winRotY < 0){
+			winRotY += 6;
+		}
+
+		winRotX = winRotX % 6;
+		winRotY = winRotY % 6;
+
 		console.log("modelo imagen X: " + camera1.rotX);
 		console.log("modelo imagen Y: " + camera1.rotY);
 		loadImage();
