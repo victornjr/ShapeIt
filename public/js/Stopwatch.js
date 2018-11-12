@@ -167,7 +167,7 @@
       duration = (duration - sec) / 60;
       min = duration % 60;
       hr = (duration - min) / 60;
-      return ('0' + hr).slice(-2) + ':' + ('0' + min).slice(-2) + ':' + ('0' + sec).slice(-2) + '.' + ('00' + ms).slice(-3);
+      return ('0' + min).slice(-2) + ':' + ('0' + sec).slice(-2) ;
     };
 
     Stopwatch.prototype._startTicking = function(callback, resolution) {
