@@ -782,7 +782,12 @@ function createStopWatch(){
 
 function nextLevel(){
 	current_level++;
-	window.location.href='2d-mode.html?u='+username+'&level='+current_level;
+	if(current_level > 4){
+		window.location.href='levels2D.html?u='+username;
+	}
+	else{
+		window.location.href='2d-mode.html?u='+username+'&level='+current_level;
+	}
 }
 
 function main() {

@@ -553,7 +553,12 @@ function getUrlVars() {
 
 function nextLevel(){
 	level++;
-	window.location.href='3d-mode.html?u='+username+'&level='+level;
+	if(level > 8){
+		window.location.href='levels3D.html?u='+username;
+	}
+	else{
+		window.location.href='3d-mode.html?u='+username+'&level='+level;
+	}
 }
 
 function initEventHandlers() {
@@ -711,7 +716,6 @@ function main() {
 		case "5":
 			setTimeout(function(){
 				levelModel = new Mono();
-				//levelModel.translate(0.,0.,-5.);
 			}, 800);
 			break;
 		case "6":
@@ -730,7 +734,7 @@ function main() {
 			}, 800);
 			break;
 		default:
-			console.log("Hola");
+			console.log("Disculpa, hubo un error");
 	}
 	setTimeout(function(){
 		scene.addModel(levelModel);
