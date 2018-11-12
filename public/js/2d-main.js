@@ -634,7 +634,8 @@ function checkSolution() {
 			writeScore[current_level] = {"score": sc };
 			sessionsRef.child(username).child("2d").update(writeScore);
 			writeScore = {};
-			writeScore[parseInt(current_level)+1] = {"score": 0 };
+			var number = parseInt(level)+1;
+			writeScore[number] = {"score": 0 };
 			sessionsRef.child(username).child("2d").update(writeScore);
 		}
 	});
