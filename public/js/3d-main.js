@@ -673,6 +673,10 @@ function resumeLevel(){
 function main() {
 	level = getUrlVars()["level"];
 	readJSON();
+	var srcSt = "img/"
+	var source = srcSt.concat(level.concat(".png"));
+
+	document.getElementById("imageWin").src=source;
 	//level = localStorage.getItem("selectedLevel");
 	canvas = document.getElementById("canvas");
 	gl = canvas.getContext("webgl");	// Get a WebGL Context
