@@ -18,8 +18,9 @@ var translate_margin = 0.02;
 var scale_margin = 0.4;
 
 var lineas_count = 0;
-var current_level = 4;
+var current_level;
 var username = "?";
+var stopwatch;
 
 class Scene {
 	constructor() {
@@ -613,7 +614,15 @@ function checkSolution() {
 		console.log("expected_correct:"+expected_correct);
 		console.log("total_correct:"+total_correct);
 		if(total_correct == expected_correct){
-			window.alert("ALL figures correct!!!!!!!");
+			stopwatch.pause();
+			$("#scoreModal").modal('show');
+			document.getElementById('finalTime').innerHTML = stopwatch;
+			starsGot(3);
+
+			var sc = 3;
+			var writeScore = {};
+			writeScore[current_level] = {"score": sc };
+			sessionsRef.child(username).child("2d").update(writeScore);
 		}
 	});
 }
@@ -711,6 +720,7 @@ function loadLevel(level){
 			lineas_count++;
 		}
 		scene.render();
+		createStopWatch();
 	});
 }
 
@@ -736,7 +746,34 @@ function getUrlVars() {
 
 	databaseRef = firebase.database();
 	nivelesRef = databaseRef.ref("niveles2d/");
+	sessionsRef = databaseRef.ref("sessions/");
 }());
+
+function starsGot(stars){
+	if(stars==1){
+		document.getElementById('nStars').innerHTML = "☆";
+	}
+	if(stars==2){
+		document.getElementById('nStars').innerHTML = "☆☆";
+	}
+	if(stars==3){
+		document.getElementById('nStars').innerHTML = "☆☆☆";
+	}
+}
+
+function createStopWatch(){
+	stopwatch = new Stopwatch();
+ 	var time = document.querySelector('.time');
+	setInterval(function() {
+		time.innerHTML = stopwatch;
+	}, 5);
+ 	stopwatch.start();
+}
+
+function nextLevel(){
+	current_level++;
+	window.location.href='2d-mode.html?u='+username+'&level='+current_level;
+}
 
 function main() {
 	canvas = document.getElementById("canvas");
@@ -751,6 +788,7 @@ function main() {
 	scene.addCamera(camera1);
 	initMouseEventHandlers();
 
+	current_level = getUrlVars()["level"];
 	clear_canvas();
 	scene.render();
 
@@ -762,4 +800,6 @@ function main() {
     display_username.innerHTML = username;
     console.log("username:"+username);
   }
+
+	// setTimeout(function(){ createStopWatch(); }, 500);
 }

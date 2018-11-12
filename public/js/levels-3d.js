@@ -9,7 +9,7 @@ function getUrlVars() {
 }
 
 function chooseLevel(level){
-  window.location.href='2d-mode.html?u='+username+'&level='+level;
+  window.location.href='3d-mode.html?u='+username+'&level='+level;
 }
 
 (function(){
@@ -37,7 +37,7 @@ window.onload = function(){
     display_username.innerHTML = username;
     console.log("username:"+username);
 
-    sessionsRef.child(username).child('2d').once('value').then(function(snapshot) {
+    sessionsRef.child(username).child('3d').once('value').then(function(snapshot) {
 			var niveles = snapshot.val();
       console.log(niveles)
 			for(var nivel in niveles){
