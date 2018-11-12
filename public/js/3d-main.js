@@ -385,7 +385,7 @@ function mouseUpEventListener(event) {
 		writeScore[level] = {"score": sc };
 		sessionsRef.child(username).child("3d").update(writeScore);
 		writeScore = {};
-		writeScore[parseInt(level+1)] = {"score": 0 };
+		writeScore[parseInt(level)+1] = {"score": 0 };
 		sessionsRef.child(username).child("3d").update(writeScore);
 	}
 }
