@@ -363,7 +363,7 @@ function mouseDownEventListener(event) {
 
 function mouseUpEventListener(event) {
 	dragging = false;	// mouse is released
-	username = "victor";
+	//username = "victor";
 	if(checkWin() == true){
 		var sc;
 		stopwatch.pause();
@@ -383,6 +383,9 @@ function mouseUpEventListener(event) {
 		//Save the score on firebase
 		var writeScore = {};
 		writeScore[level] = {"score": sc };
+		sessionsRef.child(username).child("3d").update(writeScore);
+		writeScore = {};
+		writeScore[level+1] = {"score": 0 };
 		sessionsRef.child(username).child("3d").update(writeScore);
 	}
 }

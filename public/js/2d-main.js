@@ -633,6 +633,9 @@ function checkSolution() {
 			var writeScore = {};
 			writeScore[current_level] = {"score": sc };
 			sessionsRef.child(username).child("2d").update(writeScore);
+			writeScore = {};
+			writeScore[current_level+1] = {"score": 0 };
+			sessionsRef.child(username).child("2d").update(writeScore);
 		}
 	});
 }
