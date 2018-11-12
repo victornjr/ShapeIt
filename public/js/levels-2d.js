@@ -54,6 +54,7 @@ window.onload = function(){
           $('#level'+nivel).removeClass("btn btn-secondary btn-block").addClass("btn btn-warning btn-block");
         }
         // update button score
+        document.getElementById('level'+nivel).setAttribute( "onClick", "chooseLevel("+nivel+");" );
         nivelEstrellasDiv.innerHTML = "";
         for(var i=0; i<score; i++){
           nivelEstrellasDiv.innerHTML += '<i class="fa fa-star"></i>';

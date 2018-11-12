@@ -16,6 +16,7 @@
     <script src="js/lib/create-shaders-lib.js" type="text/javascript"></script>
     <script src="js/lib/gl-matrix-min.js" type="text/javascript"></script>
     <script src="https://www.gstatic.com/firebasejs/5.5.7/firebase.js"></script>
+    <script src="js/Stopwatch.js" type="text/javascript"></script>
     <script src="js/2d-main.js" type="text/javascript"></script>
 
     <!-- Custom fonts for this template -->
@@ -124,6 +125,13 @@
 
     <header class="masthead">
       <div class="row">
+        <div  class="col-md-12">
+          <center>
+            <label class="time"></label>
+          </center>
+        </div>
+      </div>
+      <div class="row">
     			<div  class="col-md-12">
             <center>
               <br><br>
@@ -208,6 +216,32 @@
           <center>
             username: <span id="username"></span>
           </center>
+        </div>
+      </div>
+
+      <!-- Modal -->
+      <div class="modal fade modal-score" data-keyboard="false" data-backdrop="static" id="scoreModal" >
+        <div class="modal-dialog modal-dialog-centered" role="document">
+          <div class="modal-content">
+            <div class="text-center">
+
+      				<br>
+              <h5 class="modalText" >LEVEL COMPLETED!</h5>
+
+
+              </button>
+            </div>
+            <div class="modal-body">
+      				<center>
+      			<h4 id="finalTime" class="time modalText"></h4>
+      			<h4 id="nStars" class="stars"></h4>
+      		</center>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-primary mr-auto" data-dismiss="modal">Back</button>
+              <button type="button" class="btn btn-success">Next Level</button>
+            </div>
+          </div>
         </div>
       </div>
     </header>
