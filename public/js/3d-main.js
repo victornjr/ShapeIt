@@ -20,6 +20,7 @@ var win = false;
 
 var username;
 var databaseRef, sessionsRef;
+var current_level;
 
 class Scene {
 	constructor() {
@@ -487,7 +488,6 @@ function mouseUpEventListener(event) {
 	username = "victor";
 	if(checkWin() == true){
 		stopwatch.pause();
-		//console.log("YOU WIN!!! Hello");
 		$("#scoreModal").modal('show');
 		document.getElementById('finalTime').innerHTML = stopwatch;
 		starsGot(3);
@@ -549,6 +549,11 @@ function getUrlVars() {
         vars[key] = value;
     });
     return vars;
+}
+
+function nextLevel(){
+	level++;
+	window.location.href='3d-mode.html?u='+username+'&level='+level;
 }
 
 function initEventHandlers() {
@@ -755,6 +760,14 @@ function main() {
 
 	}, 1000);
 
+	var display_username = document.getElementById("username");
+  username = getUrlVars()["u"];
+  if(username == null){
+		console.log("username is UNDEFINED");
+  } else {
+    display_username.innerHTML = username;
+    console.log("username:"+username);
+  }
 
 	//levelModel.setDrawingMode("solid-per-vertex-color");
 
