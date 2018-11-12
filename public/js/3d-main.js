@@ -699,6 +699,9 @@ function main() {
 			}, 800);
 			break;
 		case "3":
+			setTimeout(function(){
+				levelModel = new Mono();
+			}, 800);
 			break;
 		case "4":
 			setTimeout(function(){
@@ -708,7 +711,7 @@ function main() {
 		case "5":
 			setTimeout(function(){
 				levelModel = new Mono();
-				levelModel.translate(0.,0.,-5.);
+				//levelModel.translate(0.,0.,-5.);
 			}, 800);
 			break;
 		case "6":
