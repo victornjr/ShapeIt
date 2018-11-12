@@ -265,128 +265,6 @@ class Model {
 	}
 }
 
-class Triangle extends Model {
-	constructor() {
-		super();
-		//Default
-		this.positions = [0., 0.57735, 0., 	 // V0
-					    -0.5, -0.28867, 0., // v1
-						 0.5, -0.28867, 0. // V2
-						 ];
-
-		this.indices = [0, 1, 2];
-
-		this.colors = [1., 0., 0., 1., 	 // V0: r,g,b,a
-					   0., 1., 0., 1., // v1
-					   0., 0., 1., 1. // V2
-					  ];
-
-		this.setSingleColorShader();	// default shader
-	}
-
-	draw() {
-		// Draw the scene
-		let primitiveType = gl.TRIANGLES;
-		if(this.drawingMode == "points") {
-			primitiveType = gl.POINTS;
-		}
-		else if(this.drawingMode == "wireframe") {
-			primitiveType = gl.LINE_LOOP;
-		}
-		var offset = 0;
-		var count = this.indices.length;
-		gl.drawElements(primitiveType, count, gl.UNSIGNED_SHORT, offset);
-	}
-}
-
-class Square extends Model {
-	constructor() {
-		super();
-		//Default
-		this.positions = [-0.5, 0.5, 0., 	 // V0
-					      -0.5, -0.5, 0., // v1
-						   0.5, -0.5, 0., // V2
-						   0.5, 0.5, 0.
-						 ];
-
-		this.indices = [0, 1, 2, 3, 0];	// Triangle2
-
-		this.colors = [1., 0., 0., 1., 	 // V0: r,g,b,a
-					   0., 1., 0., 1., // v1
-					   0., 0., 1., 1., // V2
-					   1., 1., 0., 1.
-					  ];
-
-		this.setSingleColorShader();	// default shader
-	}
-
-	draw() {
-		// Draw the scene
-		let primitiveType = gl.TRIANGLES;
-		if(this.drawingMode == "points") {
-			primitiveType = gl.POINTS;
-		}
-		else if(this.drawingMode == "wireframe") {
-			primitiveType = gl.LINE_STRIP;
-		}
-		var offset = 0;
-		var count = this.indices.length;
-		gl.drawElements(primitiveType, count, gl.UNSIGNED_SHORT, offset);
-	}
-}
-
-class Cube extends Model {
-	constructor() {
-		super();
-		//Default
-		this.positions = [1., 1., 1.,
-										 -1., 1., 1.,
-										 -1., -1, 1.,
-										 1., -1., 1.,
-										 1., -1., -1.,
-										 1., 1., -1.,
-										 -1., 1., -1.,
-										 -1, -1., -1.
-										 ];
-
-		this.indices = [0, 1, 2,   0, 2, 3,	// Front face
-			            	4, 7, 5,   7, 6, 5,	// Back face
-			            	0, 3, 4,   4, 5, 0, // Right Face
-			            	7, 2, 1,   7, 1, 6, // Left Face
-			            	6, 1, 0,   0, 5, 6,	// Top face
-			            	2, 7, 3,   7, 4, 3	// Bottom face
-										];
-
-		//this.indices = [0, 1, 2, 3, 0, 5, 4, 3, 0, 1, 6, 5, 4, 7, 6, 7, 2]
-
-		this.colors = [1., 1., 1., 1., 	 // V0: r,g,b,a
-								   1., 0., 0., 1., // v1
-								   0., 1., 0., 1., // V2
-								   0., 0., 1., 1.,
-								   0., 1., 1., 1.,
-								   1., 1., 0., 1.,
-								   1., 0., 1., 1.,
-								   0., 0., 0., 1.
-								  ];
-
-		this.setSingleColorShader();	// default shader
-	}
-
-	draw() {
-		// Draw the scene
-		let primitiveType = gl.TRIANGLES;
-		if(this.drawingMode == "points") {
-			primitiveType = gl.POINTS;
-		}
-		else if(this.drawingMode == "wireframe") {
-			primitiveType = gl.LINE_STRIP;
-		}
-		var offset = 0;
-		var count = this.indices.length;
-		gl.drawElements(primitiveType, count, gl.UNSIGNED_SHORT, offset);
-	}
-}
-
 class Mono extends Model {
 	constructor() {
 		super();
@@ -642,7 +520,7 @@ function readJSON(){
 
 	    }
 	}
-	var chargeString = "../public/json/";
+	var chargeString = "../json/";
 	var levelJSON = level.concat(".json");
 	request.open("GET",chargeString.concat(levelJSON) , true);
 	//console.log(elemento.vertices);

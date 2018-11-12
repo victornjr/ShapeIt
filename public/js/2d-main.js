@@ -620,10 +620,10 @@ function checkSolution() {
 			$("#scoreModal").modal('show');
 			document.getElementById('finalTime').innerHTML = stopwatch;
 			var finalSeconds = stopwatch.getSeconds();
-			if(finalSeconds < 10){
+			if(finalSeconds < 50){
 				sc = 3;
 			}
-			else if (finalSeconds < 30) {
+			else if (finalSeconds < 70) {
 				sc = 2;
 			}
 			else{
